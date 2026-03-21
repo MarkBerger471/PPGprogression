@@ -383,7 +383,10 @@
 
     function clearMeetingForm() {
       const fields = ['mtg-date','mtg-attendees','mtg-topic','mtg-notes','mtg-actions'];
-      fields.forEach(id => { document.getElementById(id).value = ''; });
+      fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.value = ''; el.dispatchEvent(new Event('input')); }
+      });
       document.getElementById('mtg-date').value = new Date().toISOString().split('T')[0];
       clearDrafts(fields);
     }
@@ -523,12 +526,15 @@
     }
 
     function clearTaskForm() {
-      const fields = ['task-title','task-desc','task-category','task-due'];
-      fields.forEach(id => { document.getElementById(id).value = ''; });
+      const allFields = ['task-title','task-desc','task-category','task-due','task-priority','task-status','task-assignee'];
+      allFields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.value = ''; el.dispatchEvent(new Event('input')); }
+      });
       document.getElementById('task-priority').value = 'medium';
       document.getElementById('task-status').value = 'todo';
       document.getElementById('task-assignee').value = 'Mark';
-      clearDrafts([...fields, 'task-priority', 'task-status', 'task-assignee']);
+      clearDrafts(allFields);
     }
 
     function filterTasks(filter) {
@@ -607,10 +613,13 @@
     }
 
     function clearResourceForm() {
-      const fields = ['res-title','res-url','res-desc'];
-      fields.forEach(id => { document.getElementById(id).value = ''; });
+      const allFields = ['res-title','res-url','res-desc','res-category'];
+      allFields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.value = ''; el.dispatchEvent(new Event('input')); }
+      });
       document.getElementById('res-category').value = 'Data';
-      clearDrafts([...fields, 'res-category']);
+      clearDrafts(allFields);
     }
 
     function filterResources(cat) {
@@ -787,9 +796,13 @@
     // ===================== CLEAR DRAFTS HELPER =====================
     function clearDrafts(fields) {
       const draftKey = 'ppg_drafts';
-      const d = JSON.parse(localStorage.getItem(draftKey) || '{}');
-      fields.forEach(id => { delete d[id]; });
-      localStorage.setItem(draftKey, JSON.stringify(d));
+      try {
+        const d = JSON.parse(localStorage.getItem(draftKey) || '{}');
+        fields.forEach(id => { delete d[id]; });
+        localStorage.setItem(draftKey, JSON.stringify(d));
+      } catch {
+        localStorage.removeItem('ppg_drafts');
+      }
     }
 
     // ===================== AUTOSAVE FORM DRAFTS =====================
