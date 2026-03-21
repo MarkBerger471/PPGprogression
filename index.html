@@ -11,11 +11,14 @@
         extend: {
           colors: {
             ppg: {
-              dark: '#0f172a',
-              navy: '#1e293b',
-              accent: '#3b82f6',
-              gold: '#f59e0b',
-              light: '#e2e8f0',
+              dark: '#0f1923',
+              navy: '#214164',
+              deepnavy: '#213142',
+              gray: '#6A7684',
+              cream: '#F0E6D8',
+              light: '#F3ECE3',
+              sand: '#F4EFE8',
+              accent: '#214164',
             }
           }
         }
@@ -27,65 +30,70 @@
     body { font-family: 'Inter', sans-serif; }
 
     .glass {
-      background: rgba(30, 41, 59, 0.6);
+      background: rgba(33, 65, 100, 0.25);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(240, 230, 216, 0.08);
     }
     .glass-light {
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.04);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(240, 230, 216, 0.06);
     }
     .glass-input {
-      background: rgba(255, 255, 255, 0.07);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(240, 230, 216, 0.1);
+      color: rgba(240, 230, 216, 0.9);
     }
     .glass-input:focus {
       background: rgba(255, 255, 255, 0.1);
-      border-color: #3b82f6;
+      border-color: rgba(240, 230, 216, 0.35);
       outline: none;
     }
+    .glass-input option {
+      background: #1a2a3a;
+      color: #F0E6D8;
+    }
     .nav-btn.active {
-      background: rgba(59, 130, 246, 0.2);
-      color: #3b82f6;
-      border-color: rgba(59, 130, 246, 0.3);
+      background: rgba(240, 230, 216, 0.12);
+      color: #F0E6D8;
+      border-color: rgba(240, 230, 216, 0.2);
     }
     .autosave-flash {
       animation: flash 0.6s ease-out;
     }
     @keyframes flash {
-      0% { color: #22c55e; }
-      100% { color: #94a3b8; }
+      0% { color: #F0E6D8; }
+      100% { color: #6A7684; }
     }
     .task-done { opacity: 0.5; text-decoration: line-through; }
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb { background: rgba(240,230,216,0.1); border-radius: 3px; }
     .bg-mesh {
       background-image:
-        radial-gradient(at 20% 20%, rgba(59,130,246,0.15) 0%, transparent 50%),
-        radial-gradient(at 80% 80%, rgba(245,158,11,0.1) 0%, transparent 50%),
-        radial-gradient(at 50% 50%, rgba(59,130,246,0.05) 0%, transparent 70%);
+        radial-gradient(at 20% 20%, rgba(33,65,100,0.3) 0%, transparent 50%),
+        radial-gradient(at 80% 80%, rgba(240,230,216,0.06) 0%, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(33,65,100,0.1) 0%, transparent 70%);
     }
   </style>
 </head>
-<body class="bg-ppg-dark text-ppg-light min-h-screen bg-mesh">
+<body class="bg-ppg-dark min-h-screen bg-mesh" style="color: rgba(240,230,216,0.75);">
 
   <!-- Header -->
   <header class="glass sticky top-0 z-50 px-6 py-4">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-ppg-accent to-ppg-gold flex items-center justify-center font-extrabold text-ppg-dark text-lg">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-ppg-dark text-lg" style="background: linear-gradient(135deg, #F0E6D8, #d4c4b0);">
           P
         </div>
         <div>
-          <h1 class="text-xl font-bold tracking-tight">PPG <span class="text-ppg-accent">Prime Performance Group</span></h1>
-          <p class="text-xs text-slate-400">Startup Progress Tracker &middot; Mark & Rick</p>
+          <h1 class="text-xl font-bold tracking-tight text-ppg-cream">PPG <span style="color: rgba(240,230,216,0.6);">Prime Performance Group</span></h1>
+          <p class="text-xs text-ppg-gray">Startup Progress Tracker &middot; Mark & Rick</p>
         </div>
       </div>
-      <div id="saveIndicator" class="text-xs text-slate-500 flex items-center gap-1">
+      <div id="saveIndicator" class="text-xs text-ppg-gray flex items-center gap-1">
         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><circle cx="10" cy="10" r="4"/></svg>
         <span>Autosave active</span>
       </div>
@@ -109,30 +117,30 @@
     <section id="sec-dashboard" class="section">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div class="glass rounded-2xl p-5">
-          <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Total Tasks</p>
-          <p id="stat-total" class="text-3xl font-bold text-white">0</p>
+          <p class="text-xs text-ppg-gray uppercase tracking-wider mb-1">Total Tasks</p>
+          <p id="stat-total" class="text-3xl font-bold text-ppg-cream">0</p>
         </div>
         <div class="glass rounded-2xl p-5">
-          <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Completed</p>
+          <p class="text-xs text-ppg-gray uppercase tracking-wider mb-1">Completed</p>
           <p id="stat-done" class="text-3xl font-bold text-green-400">0</p>
         </div>
         <div class="glass rounded-2xl p-5">
-          <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Meetings Logged</p>
-          <p id="stat-meetings" class="text-3xl font-bold text-ppg-gold">0</p>
+          <p class="text-xs text-ppg-gray uppercase tracking-wider mb-1">Meetings Logged</p>
+          <p id="stat-meetings" class="text-3xl font-bold text-ppg-cream">0</p>
         </div>
       </div>
 
       <!-- Quick overview -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div class="glass rounded-2xl p-5">
-          <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-3">Recent Meetings</h3>
-          <div id="dash-meetings" class="space-y-2 text-sm text-slate-400">
+          <h3 class="text-sm font-semibold text-ppg-cream uppercase tracking-wider mb-3" style="opacity:0.7;">Recent Meetings</h3>
+          <div id="dash-meetings" class="space-y-2 text-sm text-ppg-gray">
             <p class="italic">No meetings yet.</p>
           </div>
         </div>
         <div class="glass rounded-2xl p-5">
-          <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-3">Upcoming Tasks</h3>
-          <div id="dash-tasks" class="space-y-2 text-sm text-slate-400">
+          <h3 class="text-sm font-semibold text-ppg-cream uppercase tracking-wider mb-3" style="opacity:0.7;">Upcoming Tasks</h3>
+          <div id="dash-tasks" class="space-y-2 text-sm text-ppg-gray">
             <p class="italic">No tasks yet.</p>
           </div>
         </div>
@@ -142,36 +150,36 @@
     <!-- ==================== MEETING LOG ==================== -->
     <section id="sec-meetings" class="section hidden">
       <div class="glass rounded-2xl p-6 mb-6">
-        <h2 class="text-lg font-semibold text-white mb-4">New Meeting Entry</h2>
+        <h2 class="text-lg font-semibold text-ppg-cream mb-4">New Meeting Entry</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div>
-            <label class="block text-xs text-slate-400 mb-1">Date</label>
-            <input type="date" id="mtg-date" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white">
+            <label class="block text-xs text-ppg-gray mb-1">Date</label>
+            <input type="date" id="mtg-date" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
           </div>
           <div>
-            <label class="block text-xs text-slate-400 mb-1">Attendees</label>
-            <input type="text" id="mtg-attendees" placeholder="Mark, Rick" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white placeholder-slate-500">
+            <label class="block text-xs text-ppg-gray mb-1">Attendees</label>
+            <input type="text" id="mtg-attendees" placeholder="Mark, Rick" class="glass-input w-full rounded-xl px-3 py-2 text-sm placeholder-ppg-gray">
           </div>
           <div>
-            <label class="block text-xs text-slate-400 mb-1">Topic</label>
-            <input type="text" id="mtg-topic" placeholder="Meeting topic" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white placeholder-slate-500">
+            <label class="block text-xs text-ppg-gray mb-1">Topic</label>
+            <input type="text" id="mtg-topic" placeholder="Meeting topic" class="glass-input w-full rounded-xl px-3 py-2 text-sm placeholder-ppg-gray">
           </div>
         </div>
         <div class="mb-4">
-          <label class="block text-xs text-slate-400 mb-1">Meeting Minutes / Notes</label>
-          <textarea id="mtg-notes" rows="5" placeholder="Write your meeting minutes here..." class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white placeholder-slate-500 resize-y"></textarea>
+          <label class="block text-xs text-ppg-gray mb-1">Meeting Minutes / Notes</label>
+          <textarea id="mtg-notes" rows="5" placeholder="Write your meeting minutes here..." class="glass-input w-full rounded-xl px-3 py-2 text-sm placeholder-ppg-gray resize-y"></textarea>
         </div>
         <div class="mb-4">
-          <label class="block text-xs text-slate-400 mb-1">Action Items</label>
-          <textarea id="mtg-actions" rows="3" placeholder="List action items from this meeting..." class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white placeholder-slate-500 resize-y"></textarea>
+          <label class="block text-xs text-ppg-gray mb-1">Action Items</label>
+          <textarea id="mtg-actions" rows="3" placeholder="List action items from this meeting..." class="glass-input w-full rounded-xl px-3 py-2 text-sm placeholder-ppg-gray resize-y"></textarea>
         </div>
-        <button onclick="addMeeting()" class="bg-ppg-accent hover:bg-blue-600 text-white px-5 py-2 rounded-xl text-sm font-medium transition-colors">Save Meeting</button>
+        <button onclick="addMeeting()" class="bg-ppg-navy hover:bg-ppg-deepnavy text-ppg-cream px-5 py-2 rounded-xl text-sm font-medium transition-colors">Save Meeting</button>
       </div>
 
       <div class="glass rounded-2xl p-6">
-        <h2 class="text-lg font-semibold text-white mb-4">Meeting History</h2>
+        <h2 class="text-lg font-semibold text-ppg-cream mb-4">Meeting History</h2>
         <div id="meeting-list" class="space-y-4">
-          <p class="text-sm text-slate-500 italic">No meetings logged yet.</p>
+          <p class="text-sm text-ppg-gray italic">No meetings logged yet.</p>
         </div>
       </div>
     </section>
@@ -179,23 +187,23 @@
     <!-- ==================== TASKS & TODOS ==================== -->
     <section id="sec-tasks" class="section hidden">
       <div class="glass rounded-2xl p-6 mb-6">
-        <h2 class="text-lg font-semibold text-white mb-4">Add Task</h2>
+        <h2 class="text-lg font-semibold text-ppg-cream mb-4">Add Task</h2>
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
           <div class="md:col-span-2">
-            <label class="block text-xs text-slate-400 mb-1">Task</label>
-            <input type="text" id="task-title" placeholder="What needs to be done?" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white placeholder-slate-500">
+            <label class="block text-xs text-ppg-gray mb-1">Task</label>
+            <input type="text" id="task-title" placeholder="What needs to be done?" class="glass-input w-full rounded-xl px-3 py-2 text-sm placeholder-ppg-gray">
           </div>
           <div>
-            <label class="block text-xs text-slate-400 mb-1">Assignee</label>
-            <select id="task-assignee" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white">
+            <label class="block text-xs text-ppg-gray mb-1">Assignee</label>
+            <select id="task-assignee" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
               <option value="Mark">Mark</option>
               <option value="Rick">Rick</option>
               <option value="Both">Both</option>
             </select>
           </div>
           <div>
-            <label class="block text-xs text-slate-400 mb-1">Priority</label>
-            <select id="task-priority" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white">
+            <label class="block text-xs text-ppg-gray mb-1">Priority</label>
+            <select id="task-priority" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
               <option value="low">Low</option>
               <option value="medium" selected>Medium</option>
               <option value="high">High</option>
@@ -205,12 +213,12 @@
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div>
-            <label class="block text-xs text-slate-400 mb-1">Due Date</label>
-            <input type="date" id="task-due" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white">
+            <label class="block text-xs text-ppg-gray mb-1">Due Date</label>
+            <input type="date" id="task-due" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
           </div>
           <div>
-            <label class="block text-xs text-slate-400 mb-1">Status</label>
-            <select id="task-status" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white">
+            <label class="block text-xs text-ppg-gray mb-1">Status</label>
+            <select id="task-status" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
               <option value="todo">To Do</option>
               <option value="in-progress">In Progress</option>
               <option value="review">Review</option>
@@ -218,33 +226,33 @@
             </select>
           </div>
           <div>
-            <label class="block text-xs text-slate-400 mb-1">Category</label>
-            <input type="text" id="task-category" placeholder="e.g. Marketing, Dev, Legal" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white placeholder-slate-500">
+            <label class="block text-xs text-ppg-gray mb-1">Category</label>
+            <input type="text" id="task-category" placeholder="e.g. Marketing, Dev, Legal" class="glass-input w-full rounded-xl px-3 py-2 text-sm placeholder-ppg-gray">
           </div>
         </div>
         <div class="mb-4">
-          <label class="block text-xs text-slate-400 mb-1">Description</label>
-          <textarea id="task-desc" rows="2" placeholder="Additional details..." class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white placeholder-slate-500 resize-y"></textarea>
+          <label class="block text-xs text-ppg-gray mb-1">Description</label>
+          <textarea id="task-desc" rows="2" placeholder="Additional details..." class="glass-input w-full rounded-xl px-3 py-2 text-sm placeholder-ppg-gray resize-y"></textarea>
         </div>
-        <button onclick="addTask()" class="bg-ppg-accent hover:bg-blue-600 text-white px-5 py-2 rounded-xl text-sm font-medium transition-colors">Add Task</button>
+        <button onclick="addTask()" class="bg-ppg-navy hover:bg-ppg-deepnavy text-ppg-cream px-5 py-2 rounded-xl text-sm font-medium transition-colors">Add Task</button>
       </div>
 
       <!-- Filters -->
       <div class="flex flex-wrap gap-2 mb-4">
-        <button onclick="filterTasks('all')" class="filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition" data-filter="all">All</button>
-        <button onclick="filterTasks('todo')" class="filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition" data-filter="todo">To Do</button>
-        <button onclick="filterTasks('in-progress')" class="filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition" data-filter="in-progress">In Progress</button>
-        <button onclick="filterTasks('review')" class="filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition" data-filter="review">Review</button>
-        <button onclick="filterTasks('done')" class="filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition" data-filter="done">Done</button>
-        <span class="text-slate-600 mx-1">|</span>
-        <button onclick="filterTasks('Mark')" class="filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition" data-filter="Mark">Mark</button>
-        <button onclick="filterTasks('Rick')" class="filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition" data-filter="Rick">Rick</button>
+        <button onclick="filterTasks('all')" class="filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-ppg-gray hover:text-ppg-cream transition" data-filter="all">All</button>
+        <button onclick="filterTasks('todo')" class="filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-ppg-gray hover:text-ppg-cream transition" data-filter="todo">To Do</button>
+        <button onclick="filterTasks('in-progress')" class="filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-ppg-gray hover:text-ppg-cream transition" data-filter="in-progress">In Progress</button>
+        <button onclick="filterTasks('review')" class="filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-ppg-gray hover:text-ppg-cream transition" data-filter="review">Review</button>
+        <button onclick="filterTasks('done')" class="filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-ppg-gray hover:text-ppg-cream transition" data-filter="done">Done</button>
+        <span class="text-ppg-gray/30 mx-1">|</span>
+        <button onclick="filterTasks('Mark')" class="filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-ppg-gray hover:text-ppg-cream transition" data-filter="Mark">Mark</button>
+        <button onclick="filterTasks('Rick')" class="filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-ppg-gray hover:text-ppg-cream transition" data-filter="Rick">Rick</button>
       </div>
 
       <div class="glass rounded-2xl p-6">
-        <h2 class="text-lg font-semibold text-white mb-4">Task Board</h2>
+        <h2 class="text-lg font-semibold text-ppg-cream mb-4">Task Board</h2>
         <div id="task-list" class="space-y-3">
-          <p class="text-sm text-slate-500 italic">No tasks yet.</p>
+          <p class="text-sm text-ppg-gray italic">No tasks yet.</p>
         </div>
       </div>
     </section>
@@ -252,19 +260,19 @@
     <!-- ==================== RESOURCES & LINKS ==================== -->
     <section id="sec-resources" class="section hidden">
       <div class="glass rounded-2xl p-6 mb-6">
-        <h2 class="text-lg font-semibold text-white mb-4">Add Resource / Link</h2>
+        <h2 class="text-lg font-semibold text-ppg-cream mb-4">Add Resource / Link</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div>
-            <label class="block text-xs text-slate-400 mb-1">Title</label>
-            <input type="text" id="res-title" placeholder="Resource name" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white placeholder-slate-500">
+            <label class="block text-xs text-ppg-gray mb-1">Title</label>
+            <input type="text" id="res-title" placeholder="Resource name" class="glass-input w-full rounded-xl px-3 py-2 text-sm placeholder-ppg-gray">
           </div>
           <div>
-            <label class="block text-xs text-slate-400 mb-1">URL</label>
-            <input type="url" id="res-url" placeholder="https://..." class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white placeholder-slate-500">
+            <label class="block text-xs text-ppg-gray mb-1">URL</label>
+            <input type="url" id="res-url" placeholder="https://..." class="glass-input w-full rounded-xl px-3 py-2 text-sm placeholder-ppg-gray">
           </div>
           <div>
-            <label class="block text-xs text-slate-400 mb-1">Category</label>
-            <select id="res-category" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white">
+            <label class="block text-xs text-ppg-gray mb-1">Category</label>
+            <select id="res-category" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
               <option value="Data">Data</option>
               <option value="Documents">Documents</option>
               <option value="Tools">Tools</option>
@@ -277,21 +285,21 @@
           </div>
         </div>
         <div class="mb-4">
-          <label class="block text-xs text-slate-400 mb-1">Description</label>
-          <input type="text" id="res-desc" placeholder="Brief description..." class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white placeholder-slate-500">
+          <label class="block text-xs text-ppg-gray mb-1">Description</label>
+          <input type="text" id="res-desc" placeholder="Brief description..." class="glass-input w-full rounded-xl px-3 py-2 text-sm placeholder-ppg-gray">
         </div>
-        <button onclick="addResource()" class="bg-ppg-accent hover:bg-blue-600 text-white px-5 py-2 rounded-xl text-sm font-medium transition-colors">Add Resource</button>
+        <button onclick="addResource()" class="bg-ppg-navy hover:bg-ppg-deepnavy text-ppg-cream px-5 py-2 rounded-xl text-sm font-medium transition-colors">Add Resource</button>
       </div>
 
       <!-- Resource filter by category -->
       <div class="flex flex-wrap gap-2 mb-4" id="res-filters">
-        <button onclick="filterResources('all')" class="res-filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition">All</button>
+        <button onclick="filterResources('all')" class="res-filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-ppg-gray hover:text-ppg-cream transition">All</button>
       </div>
 
       <div class="glass rounded-2xl p-6">
-        <h2 class="text-lg font-semibold text-white mb-4">Resources Library</h2>
+        <h2 class="text-lg font-semibold text-ppg-cream mb-4">Resources Library</h2>
         <div id="resource-list" class="space-y-3">
-          <p class="text-sm text-slate-500 italic">No resources added yet.</p>
+          <p class="text-sm text-ppg-gray italic">No resources added yet.</p>
         </div>
       </div>
     </section>
@@ -299,7 +307,7 @@
   </main>
 
   <!-- Footer -->
-  <footer class="max-w-7xl mx-auto px-6 py-8 text-center text-xs text-slate-600">
+  <footer class="max-w-7xl mx-auto px-6 py-8 text-center text-xs text-ppg-gray/50">
     PPG Prime Performance Group &copy; 2026 &middot; Mark & Rick
   </footer>
 
@@ -409,38 +417,38 @@
     function renderMeetings() {
       const container = document.getElementById('meeting-list');
       if (meetings.length === 0) {
-        container.innerHTML = '<p class="text-sm text-slate-500 italic">No meetings logged yet.</p>';
+        container.innerHTML = '<p class="text-sm text-ppg-gray italic">No meetings logged yet.</p>';
         return;
       }
       container.innerHTML = meetings.map(m => {
         if (editingMeetingId === m.id) {
           return `
-          <div class="glass-light rounded-xl p-4 ring-1 ring-ppg-accent/30">
+          <div class="glass-light rounded-xl p-4 ring-1 ring-ppg-cream/20">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
               <div>
-                <label class="block text-xs text-slate-400 mb-1">Date</label>
-                <input type="date" id="edit-mtg-date-${m.id}" value="${m.date}" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white">
+                <label class="block text-xs text-ppg-gray mb-1">Date</label>
+                <input type="date" id="edit-mtg-date-${m.id}" value="${m.date}" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
               </div>
               <div>
-                <label class="block text-xs text-slate-400 mb-1">Attendees</label>
-                <input type="text" id="edit-mtg-attendees-${m.id}" value="${esc(m.attendees || '')}" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white">
+                <label class="block text-xs text-ppg-gray mb-1">Attendees</label>
+                <input type="text" id="edit-mtg-attendees-${m.id}" value="${esc(m.attendees || '')}" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
               </div>
               <div>
-                <label class="block text-xs text-slate-400 mb-1">Topic</label>
-                <input type="text" id="edit-mtg-topic-${m.id}" value="${esc(m.topic || '')}" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white">
+                <label class="block text-xs text-ppg-gray mb-1">Topic</label>
+                <input type="text" id="edit-mtg-topic-${m.id}" value="${esc(m.topic || '')}" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
               </div>
             </div>
             <div class="mb-3">
-              <label class="block text-xs text-slate-400 mb-1">Meeting Minutes / Notes</label>
-              <textarea id="edit-mtg-notes-${m.id}" rows="5" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white resize-y">${esc(m.notes || '')}</textarea>
+              <label class="block text-xs text-ppg-gray mb-1">Meeting Minutes / Notes</label>
+              <textarea id="edit-mtg-notes-${m.id}" rows="5" class="glass-input w-full rounded-xl px-3 py-2 text-sm resize-y">${esc(m.notes || '')}</textarea>
             </div>
             <div class="mb-3">
-              <label class="block text-xs text-slate-400 mb-1">Action Items</label>
-              <textarea id="edit-mtg-actions-${m.id}" rows="3" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white resize-y">${esc(m.actions || '')}</textarea>
+              <label class="block text-xs text-ppg-gray mb-1">Action Items</label>
+              <textarea id="edit-mtg-actions-${m.id}" rows="3" class="glass-input w-full rounded-xl px-3 py-2 text-sm resize-y">${esc(m.actions || '')}</textarea>
             </div>
             <div class="flex gap-2">
-              <button onclick="saveMeetingEdit(${m.id})" class="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-xl text-sm font-medium transition-colors">Save</button>
-              <button onclick="cancelMeetingEdit()" class="glass-light hover:bg-white/10 text-slate-300 px-4 py-1.5 rounded-xl text-sm font-medium transition-colors">Cancel</button>
+              <button onclick="saveMeetingEdit(${m.id})" class="bg-ppg-navy hover:bg-ppg-deepnavy text-ppg-cream px-4 py-1.5 rounded-xl text-sm font-medium transition-colors">Save</button>
+              <button onclick="cancelMeetingEdit()" class="glass-light hover:bg-white/10 text-ppg-gray px-4 py-1.5 rounded-xl text-sm font-medium transition-colors">Cancel</button>
             </div>
           </div>`;
         }
@@ -448,18 +456,18 @@
         <div class="glass-light rounded-xl p-4">
           <div class="flex items-start justify-between mb-2">
             <div>
-              <h3 class="font-semibold text-white">${esc(m.topic || 'Untitled Meeting')}</h3>
-              <p class="text-xs text-slate-400">${m.date} &middot; ${esc(m.attendees || 'No attendees listed')}</p>
+              <h3 class="font-semibold text-ppg-cream">${esc(m.topic || 'Untitled Meeting')}</h3>
+              <p class="text-xs text-ppg-gray">${m.date} &middot; ${esc(m.attendees || 'No attendees listed')}</p>
             </div>
             <div class="flex gap-2">
-              <button onclick="editMeeting(${m.id})" class="text-slate-600 hover:text-ppg-accent text-xs transition">Edit</button>
-              <button onclick="deleteMeeting(${m.id})" class="text-slate-600 hover:text-red-400 text-xs transition">Delete</button>
+              <button onclick="editMeeting(${m.id})" class="text-ppg-gray/50 hover:text-ppg-cream text-xs transition">Edit</button>
+              <button onclick="deleteMeeting(${m.id})" class="text-ppg-gray/50 hover:text-red-400 text-xs transition">Delete</button>
             </div>
           </div>
-          ${m.notes ? `<div class="text-sm text-slate-300 mb-2 whitespace-pre-wrap">${esc(m.notes)}</div>` : ''}
+          ${m.notes ? `<div class="text-sm text-ppg-cream/70 mb-2 whitespace-pre-wrap">${esc(m.notes)}</div>` : ''}
           ${m.actions ? `<div class="mt-2 pt-2 border-t border-white/5">
-            <p class="text-xs text-ppg-gold font-medium mb-1">Action Items</p>
-            <div class="text-sm text-slate-300 whitespace-pre-wrap">${esc(m.actions)}</div>
+            <p class="text-xs text-ppg-cream font-medium mb-1">Action Items</p>
+            <div class="text-sm text-ppg-cream/70 whitespace-pre-wrap">${esc(m.actions)}</div>
           </div>` : ''}
         </div>`;
       }).join('');
@@ -528,8 +536,8 @@
       renderTasks();
     }
 
-    const priorityColors = { urgent: 'text-red-400', high: 'text-orange-400', medium: 'text-ppg-accent', low: 'text-slate-400' };
-    const statusBadge = { todo: 'bg-slate-600', 'in-progress': 'bg-blue-600', review: 'bg-purple-600', done: 'bg-green-600' };
+    const priorityColors = { urgent: 'text-red-400', high: 'text-orange-400', medium: 'text-ppg-cream', low: 'text-ppg-gray' };
+    const statusBadge = { todo: 'bg-ppg-gray/30', 'in-progress': 'bg-ppg-navy', review: 'bg-purple-800/60', done: 'bg-green-800/60' };
 
     function renderTasks() {
       const container = document.getElementById('task-list');
@@ -539,7 +547,7 @@
       }
 
       if (filtered.length === 0) {
-        container.innerHTML = '<p class="text-sm text-slate-500 italic">No tasks match this filter.</p>';
+        container.innerHTML = '<p class="text-sm text-ppg-gray italic">No tasks match this filter.</p>';
         return;
       }
 
@@ -547,24 +555,24 @@
         <div class="glass-light rounded-xl p-4 ${t.status === 'done' ? 'task-done' : ''}">
           <div class="flex items-start justify-between gap-3">
             <div class="flex items-start gap-3 flex-1">
-              <input type="checkbox" ${t.status === 'done' ? 'checked' : ''} onchange="toggleTask(${t.id})" class="mt-1 accent-ppg-accent">
+              <input type="checkbox" ${t.status === 'done' ? 'checked' : ''} onchange="toggleTask(${t.id})" class="mt-1 accent-ppg-cream">
               <div class="flex-1">
-                <h3 class="font-medium text-white text-sm">${esc(t.title)}</h3>
+                <h3 class="font-medium text-ppg-cream text-sm">${esc(t.title)}</h3>
                 <div class="flex flex-wrap gap-2 mt-1">
                   <span class="text-xs ${priorityColors[t.priority]}">${t.priority}</span>
-                  <span class="text-xs px-1.5 py-0.5 rounded ${statusBadge[t.status]} text-white">${t.status}</span>
-                  <span class="text-xs text-slate-400">${esc(t.assignee)}</span>
-                  ${t.due ? `<span class="text-xs text-slate-400">${t.due}</span>` : ''}
-                  ${t.category ? `<span class="text-xs text-ppg-gold">${esc(t.category)}</span>` : ''}
+                  <span class="text-xs px-1.5 py-0.5 rounded ${statusBadge[t.status]} text-ppg-cream">${t.status}</span>
+                  <span class="text-xs text-ppg-gray">${esc(t.assignee)}</span>
+                  ${t.due ? `<span class="text-xs text-ppg-gray">${t.due}</span>` : ''}
+                  ${t.category ? `<span class="text-xs text-ppg-cream/60">${esc(t.category)}</span>` : ''}
                 </div>
-                ${t.description ? `<p class="text-xs text-slate-400 mt-1">${esc(t.description)}</p>` : ''}
+                ${t.description ? `<p class="text-xs text-ppg-gray mt-1">${esc(t.description)}</p>` : ''}
               </div>
             </div>
             <div class="flex items-center gap-2 shrink-0">
-              <select onchange="updateTaskStatus(${t.id}, this.value)" class="glass-input rounded-lg px-2 py-1 text-xs text-white">
+              <select onchange="updateTaskStatus(${t.id}, this.value)" class="glass-input rounded-lg px-2 py-1 text-xs text-ppg-cream">
                 ${['todo','in-progress','review','done'].map(s => `<option value="${s}" ${t.status === s ? 'selected' : ''}>${s}</option>`).join('')}
               </select>
-              <button onclick="deleteTask(${t.id})" class="text-slate-600 hover:text-red-400 text-xs transition">Del</button>
+              <button onclick="deleteTask(${t.id})" class="text-ppg-gray/50 hover:text-red-400 text-xs transition">Del</button>
             </div>
           </div>
         </div>
@@ -613,7 +621,7 @@
     function renderResourceFilters() {
       const cats = [...new Set(resources.map(r => r.category))];
       const container = document.getElementById('res-filters');
-      container.innerHTML = `<button onclick="filterResources('all')" class="res-filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition">All</button>` +
+      container.innerHTML = `<button onclick="filterResources('all')" class="res-filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-ppg-gray hover:text-ppg-cream transition">All</button>` +
         cats.map(c => {
           const cc = catColor(c);
           return `<button onclick="filterResources('${c}')" class="res-filter-btn text-xs px-3 py-1.5 rounded-lg ${cc.bg} ${cc.text} hover:opacity-80 transition">${esc(c)}</button>`;
@@ -667,7 +675,7 @@
       let filtered = currentResFilter === 'all' ? resources : resources.filter(r => r.category === currentResFilter);
 
       if (filtered.length === 0) {
-        container.innerHTML = '<p class="text-sm text-slate-500 italic">No resources added yet.</p>';
+        container.innerHTML = '<p class="text-sm text-ppg-gray italic">No resources added yet.</p>';
         return;
       }
 
@@ -683,30 +691,30 @@
         const items = grouped[cat].map(r => {
           if (editingResourceId === r.id) {
             return `
-            <div class="glass-light rounded-xl p-4 ring-1 ring-ppg-accent/30">
+            <div class="glass-light rounded-xl p-4 ring-1 ring-ppg-cream/20">
               <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
                 <div>
-                  <label class="block text-xs text-slate-400 mb-1">Title</label>
-                  <input type="text" id="edit-res-title-${r.id}" value="${esc(r.title || '')}" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white">
+                  <label class="block text-xs text-ppg-gray mb-1">Title</label>
+                  <input type="text" id="edit-res-title-${r.id}" value="${esc(r.title || '')}" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
                 </div>
                 <div>
-                  <label class="block text-xs text-slate-400 mb-1">URL</label>
-                  <input type="url" id="edit-res-url-${r.id}" value="${esc(r.url || '')}" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white">
+                  <label class="block text-xs text-ppg-gray mb-1">URL</label>
+                  <input type="url" id="edit-res-url-${r.id}" value="${esc(r.url || '')}" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
                 </div>
                 <div>
-                  <label class="block text-xs text-slate-400 mb-1">Category</label>
-                  <select id="edit-res-category-${r.id}" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white">
+                  <label class="block text-xs text-ppg-gray mb-1">Category</label>
+                  <select id="edit-res-category-${r.id}" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
                     ${resCategoryOptions.map(c => `<option value="${c}" ${r.category === c ? 'selected' : ''}>${c}</option>`).join('')}
                   </select>
                 </div>
               </div>
               <div class="mb-3">
-                <label class="block text-xs text-slate-400 mb-1">Description</label>
-                <input type="text" id="edit-res-desc-${r.id}" value="${esc(r.description || '')}" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white">
+                <label class="block text-xs text-ppg-gray mb-1">Description</label>
+                <input type="text" id="edit-res-desc-${r.id}" value="${esc(r.description || '')}" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
               </div>
               <div class="flex gap-2">
-                <button onclick="saveResourceEdit(${r.id})" class="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-xl text-sm font-medium transition-colors">Save</button>
-                <button onclick="cancelResourceEdit()" class="glass-light hover:bg-white/10 text-slate-300 px-4 py-1.5 rounded-xl text-sm font-medium transition-colors">Cancel</button>
+                <button onclick="saveResourceEdit(${r.id})" class="bg-ppg-navy hover:bg-ppg-deepnavy text-ppg-cream px-4 py-1.5 rounded-xl text-sm font-medium transition-colors">Save</button>
+                <button onclick="cancelResourceEdit()" class="glass-light hover:bg-white/10 text-ppg-gray px-4 py-1.5 rounded-xl text-sm font-medium transition-colors">Cancel</button>
               </div>
             </div>`;
           }
@@ -715,14 +723,14 @@
             <div class="flex-1">
               <div class="flex items-center gap-2">
                 <span class="text-xs px-2 py-0.5 rounded-lg ${cc.bg} ${cc.text}">${esc(r.category)}</span>
-                <h3 class="font-medium text-white text-sm">${esc(r.title || 'Untitled')}</h3>
+                <h3 class="font-medium text-ppg-cream text-sm">${esc(r.title || 'Untitled')}</h3>
               </div>
               ${r.url ? `<a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer" class="text-xs ${cc.text} hover:underline mt-1 block truncate">${esc(r.url)}</a>` : ''}
-              ${r.description ? `<p class="text-xs text-slate-400 mt-1">${esc(r.description)}</p>` : ''}
+              ${r.description ? `<p class="text-xs text-ppg-gray mt-1">${esc(r.description)}</p>` : ''}
             </div>
             <div class="flex gap-2 shrink-0">
-              <button onclick="editResource(${r.id})" class="text-slate-600 hover:text-ppg-accent text-xs transition">Edit</button>
-              <button onclick="deleteResource(${r.id})" class="text-slate-600 hover:text-red-400 text-xs transition">Delete</button>
+              <button onclick="editResource(${r.id})" class="text-ppg-gray/50 hover:text-ppg-cream text-xs transition">Edit</button>
+              <button onclick="deleteResource(${r.id})" class="text-ppg-gray/50 hover:text-red-400 text-xs transition">Delete</button>
             </div>
           </div>`;
         }).join('');
@@ -732,7 +740,7 @@
           <div class="flex items-center gap-2 mb-3">
             <div class="w-2 h-2 rounded-full ${cc.bg} ${cc.text}" style="background: currentColor;"></div>
             <h3 class="text-sm font-semibold ${cc.text} uppercase tracking-wider">${esc(cat)}</h3>
-            <span class="text-xs text-slate-500">(${grouped[cat].length})</span>
+            <span class="text-xs text-ppg-gray">(${grouped[cat].length})</span>
           </div>
           <div class="space-y-3 pl-4 border-l ${cc.border}">
             ${items}
@@ -753,8 +761,8 @@
       dm.innerHTML = recentMtg.length === 0
         ? '<p class="italic">No meetings yet.</p>'
         : recentMtg.map(m => `<div class="glass-light rounded-lg p-2 cursor-pointer" onclick="showSection('meetings')">
-            <span class="text-white text-xs font-medium">${esc(m.topic || 'Untitled')}</span>
-            <span class="text-slate-500 text-xs ml-2">${m.date}</span>
+            <span class="text-ppg-cream text-xs font-medium">${esc(m.topic || 'Untitled')}</span>
+            <span class="text-ppg-gray text-xs ml-2">${m.date}</span>
           </div>`).join('');
 
       // Upcoming tasks
@@ -763,9 +771,9 @@
       dt.innerHTML = upcoming.length === 0
         ? '<p class="italic">No open tasks.</p>'
         : upcoming.map(t => `<div class="glass-light rounded-lg p-2 cursor-pointer" onclick="showSection('tasks')">
-            <span class="text-white text-xs font-medium">${esc(t.title)}</span>
+            <span class="text-ppg-cream text-xs font-medium">${esc(t.title)}</span>
             <span class="text-xs ${priorityColors[t.priority]} ml-2">${t.priority}</span>
-            <span class="text-slate-500 text-xs ml-2">${esc(t.assignee)}</span>
+            <span class="text-ppg-gray text-xs ml-2">${esc(t.assignee)}</span>
           </div>`).join('');
     }
 
