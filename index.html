@@ -1011,76 +1011,88 @@
       const now = new Date();
       now.setHours(0,0,0,0);
 
-      // Calculate the full span from today to last milestone
-      const startDate = now;
-      const endDate = new Date(milestones[milestones.length - 1].date + 'T00:00:00');
-      const totalSpan = endDate - startDate;
+      const lastDate = new Date(milestones[milestones.length - 1].date + 'T00:00:00');
+      const totalDays = Math.max(1, Math.ceil((lastDate - now) / (1000 * 60 * 60 * 24)));
 
-      const html = `
-        <div class="relative">
-          <!-- Progress bar track -->
-          <div class="flex items-center gap-0 relative">
-            ${milestones.map((m, i) => {
-              const target = new Date(m.date + 'T00:00:00');
-              const daysLeft = Math.ceil((target - now) / (1000 * 60 * 60 * 24));
-              const isPast = daysLeft <= 0;
-              const isClose = daysLeft > 0 && daysLeft <= 30;
-              const isMid = daysLeft > 30 && daysLeft <= 90;
+      // Build segment data
+      const segments = milestones.map((m, i) => {
+        const target = new Date(m.date + 'T00:00:00');
+        const prevDate = i === 0 ? now : new Date(milestones[i-1].date + 'T00:00:00');
+        const segDays = Math.max(1, Math.ceil((target - prevDate) / (1000 * 60 * 60 * 24)));
+        const daysLeft = Math.ceil((target - now) / (1000 * 60 * 60 * 24));
+        const isPast = daysLeft <= 0;
+        const elapsed = now - prevDate;
+        const segTotal = target - prevDate;
+        const progress = isPast ? 100 : Math.max(0, Math.min(100, (elapsed / segTotal) * 100));
+        const widthPct = (segDays / totalDays) * 100;
+        return { ...m, daysLeft, isPast, progress, widthPct, target };
+      });
 
-              // Progress towards this milestone (from project start or previous milestone)
-              const mStart = i === 0 ? now : new Date(milestones[i-1].date + 'T00:00:00');
-              const mEnd = target;
-              const elapsed = now - mStart;
-              const segTotal = mEnd - mStart;
-              const progress = isPast ? 100 : Math.max(0, Math.min(100, (elapsed / segTotal) * 100));
+      function getColors(daysLeft, isPast) {
+        if (isPast) return { bar: '#22c55e', glow: 'rgba(34,197,94,0.3)', dot: '#22c55e', text: 'text-green-400', bg: 'rgba(34,197,94,0.12)', ring: 'ring-green-400/50' };
+        if (daysLeft <= 30) return { bar: '#f59e0b', glow: 'rgba(245,158,11,0.3)', dot: '#f59e0b', text: 'text-amber-400', bg: 'rgba(245,158,11,0.12)', ring: 'ring-amber-400/50' };
+        if (daysLeft <= 90) return { bar: '#3b82f6', glow: 'rgba(59,130,246,0.25)', dot: '#3b82f6', text: 'text-blue-400', bg: 'rgba(59,130,246,0.10)', ring: 'ring-blue-400/40' };
+        return { bar: '#6A7684', glow: 'rgba(106,118,132,0.15)', dot: '#6A7684', text: 'text-ppg-gray', bg: 'rgba(106,118,132,0.10)', ring: 'ring-ppg-gray/30' };
+      }
 
-              // Color based on status
-              let barColor, dotColor, textColor, bgTint;
-              if (isPast) {
-                barColor = 'bg-green-500'; dotColor = 'bg-green-400'; textColor = 'text-green-400'; bgTint = 'bg-green-500/10';
-              } else if (isClose) {
-                barColor = 'bg-amber-500'; dotColor = 'bg-amber-400'; textColor = 'text-amber-400'; bgTint = 'bg-amber-500/10';
-              } else if (isMid) {
-                barColor = 'bg-blue-500'; dotColor = 'bg-blue-400'; textColor = 'text-blue-400'; bgTint = 'bg-blue-500/10';
-              } else {
-                barColor = 'bg-ppg-gray'; dotColor = 'bg-ppg-gray'; textColor = 'text-ppg-gray'; bgTint = 'bg-ppg-gray/10';
-              }
-
+      container.innerHTML = `
+        <div class="relative pt-2 pb-1">
+          <!-- Bar row -->
+          <div class="flex items-center">
+            <!-- Today dot -->
+            <div class="relative shrink-0 z-20 mr-[-6px]">
+              <div class="w-3 h-3 rounded-full bg-ppg-cream ring-4 ring-ppg-cream/15"></div>
+            </div>
+            ${segments.map((s, i) => {
+              const c = getColors(s.daysLeft, s.isPast);
               return `
-              <div class="flex-1 ${i > 0 ? '' : ''}">
-                <!-- Segment -->
-                <div class="flex items-center gap-0">
-                  ${i === 0 ? `<div class="w-3 h-3 rounded-full bg-ppg-cream shrink-0 ring-2 ring-ppg-cream/30 z-10"></div>` : ''}
-                  <!-- Bar -->
-                  <div class="flex-1 h-2 rounded-full bg-white/5 mx-2 overflow-hidden">
-                    <div class="${barColor} h-full rounded-full transition-all" style="width: ${progress}%"></div>
+              <!-- Segment ${i} -->
+              <div class="relative" style="flex: ${s.widthPct} 0 0; min-width: 60px;">
+                <div class="flex items-center">
+                  <!-- Track -->
+                  <div class="flex-1 h-2.5 rounded-full overflow-hidden mx-1" style="background: rgba(255,255,255,0.06);">
+                    <div class="h-full rounded-full" style="width: ${s.progress}%; background: linear-gradient(90deg, ${c.bar}, ${c.bar}dd); box-shadow: 0 0 12px ${c.glow};"></div>
                   </div>
-                  <!-- Milestone dot -->
-                  <div class="w-4 h-4 rounded-full ${isPast ? dotColor : 'bg-white/10 ring-2 ' + (isClose ? 'ring-amber-400/50' : isMid ? 'ring-blue-400/30' : 'ring-ppg-gray/20')} shrink-0 z-10 flex items-center justify-center">
-                    ${isPast ? '<svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>' : ''}
+                  <!-- Milestone node -->
+                  <div class="shrink-0 z-20 w-5 h-5 rounded-full flex items-center justify-center ring-3 ${c.ring}" style="background: ${s.isPast ? c.dot : 'rgba(255,255,255,0.08)'};">
+                    ${s.isPast ? '<svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>' : ''}
                   </div>
-                </div>
-                <!-- Label -->
-                <div class="text-right mt-3 pr-1">
-                  <div class="flex items-center justify-end gap-1.5">
-                    <span class="text-base">${m.icon}</span>
-                    <span class="text-sm font-semibold text-ppg-cream">${esc(m.label)}</span>
-                  </div>
-                  <p class="text-xs ${textColor} mt-0.5">${m.date}</p>
-                  <span class="inline-block mt-1 text-xs font-bold px-2.5 py-1 rounded-lg ${bgTint} ${textColor}">
-                    ${isPast ? '✓ Complete' : daysLeft + ' days to go'}
-                  </span>
                 </div>
               </div>`;
             }).join('')}
           </div>
-          <!-- Today marker -->
-          <div class="mt-3 pl-0">
-            <span class="text-xs text-ppg-gray">Today: ${now.toISOString().split('T')[0]}</span>
+
+          <!-- Labels row -->
+          <div class="flex items-start mt-4">
+            <!-- Today label -->
+            <div class="shrink-0 w-[12px]">
+            </div>
+            ${segments.map((s, i) => {
+              const c = getColors(s.daysLeft, s.isPast);
+              return `
+              <div class="text-right pr-2" style="flex: ${s.widthPct} 0 0; min-width: 60px;">
+                <div class="glass-light rounded-xl p-3 inline-block text-right" style="background: ${c.bg};">
+                  <div class="flex items-center justify-end gap-1.5 mb-1">
+                    <span class="text-lg">${s.icon}</span>
+                    <span class="text-sm font-bold text-ppg-cream">${esc(s.label)}</span>
+                  </div>
+                  <p class="text-xs ${c.text}" style="opacity:0.8;">${s.date}</p>
+                  <div class="mt-2 text-base font-extrabold ${c.text}">
+                    ${s.isPast ? '✓ Done' : s.daysLeft + 'd'}
+                  </div>
+                  ${!s.isPast ? `<p class="text-xs text-ppg-gray mt-0.5">${s.daysLeft === 1 ? 'tomorrow' : 'to go'}</p>` : ''}
+                </div>
+              </div>`;
+            }).join('')}
+          </div>
+
+          <!-- Today tag -->
+          <div class="flex items-center gap-1.5 mt-4">
+            <div class="w-1.5 h-1.5 rounded-full bg-ppg-cream"></div>
+            <span class="text-xs text-ppg-gray font-medium">Today &middot; ${now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</span>
           </div>
         </div>
       `;
-      container.innerHTML = html;
     }
 
     // ===================== INIT =====================
