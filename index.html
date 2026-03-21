@@ -56,9 +56,23 @@
       color: #F0E6D8;
     }
     .nav-btn.active {
-      background: rgba(240, 230, 216, 0.12);
       color: #F0E6D8;
-      border-color: rgba(240, 230, 216, 0.2);
+      border-color: rgba(240, 230, 216, 0.25);
+    }
+    .nav-btn[data-section="dashboard"].active { background: rgba(100, 180, 255, 0.15); }
+    .nav-btn[data-section="meetings"].active  { background: rgba(168, 140, 220, 0.15); }
+    .nav-btn[data-section="tasks"].active      { background: rgba(120, 200, 160, 0.15); }
+    .nav-btn[data-section="resources"].active   { background: rgba(220, 180, 100, 0.15); }
+    .nav-btn[data-section="dashboard"]:hover { background: rgba(100, 180, 255, 0.08); }
+    .nav-btn[data-section="meetings"]:hover  { background: rgba(168, 140, 220, 0.08); }
+    .nav-btn[data-section="tasks"]:hover      { background: rgba(120, 200, 160, 0.08); }
+    .nav-btn[data-section="resources"]:hover   { background: rgba(220, 180, 100, 0.08); }
+    @keyframes due-pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+    .due-soon-badge {
+      animation: due-pulse 2s ease-in-out infinite;
     }
     .autosave-flash {
       animation: flash 0.6s ease-out;
@@ -85,9 +99,16 @@
   <header class="glass sticky top-0 z-50 px-6 py-4">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-ppg-dark text-lg" style="background: linear-gradient(135deg, #F0E6D8, #d4c4b0);">
-          P
-        </div>
+        <svg class="w-10 h-10" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="logoGrad" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#F0E6D8"/>
+              <stop offset="100%" stop-color="#c4b49e"/>
+            </linearGradient>
+          </defs>
+          <rect width="48" height="48" rx="12" fill="url(#logoGrad)"/>
+          <text x="50%" y="54%" text-anchor="middle" dominant-baseline="central" font-family="Inter, sans-serif" font-weight="800" font-size="18" fill="#0f1923">PPG</text>
+        </svg>
         <div>
           <h1 class="text-xl font-bold tracking-tight text-ppg-cream">PPG <span style="color: rgba(240,230,216,0.6);">Prime Performance Group</span></h1>
           <p class="text-xs text-ppg-gray">Startup Progress Tracker &middot; Mark & Rick</p>
@@ -526,6 +547,35 @@
       updateDashboard();
     }
 
+    let editingTaskId = null;
+
+    function editTask(id) {
+      editingTaskId = id;
+      renderTasks();
+    }
+
+    function saveTaskEdit(id) {
+      const t = tasks.find(t => t.id === id);
+      if (!t) return;
+      t.title = document.getElementById('edit-task-title-' + id).value.trim();
+      t.assignee = document.getElementById('edit-task-assignee-' + id).value;
+      t.priority = document.getElementById('edit-task-priority-' + id).value;
+      t.due = document.getElementById('edit-task-due-' + id).value;
+      t.status = document.getElementById('edit-task-status-' + id).value;
+      t.category = document.getElementById('edit-task-category-' + id).value.trim();
+      t.description = document.getElementById('edit-task-desc-' + id).value.trim();
+      t.results = document.getElementById('edit-task-results-' + id).value.trim();
+      save(STORE_KEYS.tasks, tasks);
+      editingTaskId = null;
+      renderTasks();
+      updateDashboard();
+    }
+
+    function cancelTaskEdit() {
+      editingTaskId = null;
+      renderTasks();
+    }
+
     function clearTaskForm() {
       const allFields = ['task-title','task-desc','task-category','task-due','task-priority','task-status','task-assignee'];
       allFields.forEach(id => {
@@ -544,7 +594,39 @@
     }
 
     const priorityColors = { urgent: 'text-red-400', high: 'text-orange-400', medium: 'text-ppg-cream', low: 'text-ppg-gray' };
+    const priorityWeight = { urgent: 0, high: 1, medium: 2, low: 3 };
     const statusBadge = { todo: 'bg-ppg-gray/30', 'in-progress': 'bg-ppg-navy', review: 'bg-purple-800/60', done: 'bg-green-800/60' };
+
+    function isDueSoon(due) {
+      if (!due) return false;
+      const now = new Date();
+      now.setHours(0,0,0,0);
+      const d = new Date(due + 'T00:00:00');
+      const diff = (d - now) / (1000 * 60 * 60 * 24);
+      return diff >= 0 && diff <= 5;
+    }
+
+    function isOverdue(due) {
+      if (!due) return false;
+      const now = new Date();
+      now.setHours(0,0,0,0);
+      const d = new Date(due + 'T00:00:00');
+      return d < now;
+    }
+
+    function sortTasks(arr) {
+      return [...arr].sort((a, b) => {
+        // Done tasks go to the bottom
+        if (a.status === 'done' && b.status !== 'done') return 1;
+        if (a.status !== 'done' && b.status === 'done') return -1;
+        // Sort by due date (no date goes after dated tasks)
+        const da = a.due || '9999-12-31';
+        const db = b.due || '9999-12-31';
+        if (da !== db) return da.localeCompare(db);
+        // Then by priority (urgent first)
+        return (priorityWeight[a.priority] || 2) - (priorityWeight[b.priority] || 2);
+      });
+    }
 
     function renderTasks() {
       const container = document.getElementById('task-list');
@@ -558,32 +640,95 @@
         return;
       }
 
-      container.innerHTML = filtered.map(t => `
-        <div class="glass-light rounded-xl p-4 ${t.status === 'done' ? 'task-done' : ''}">
+      filtered = sortTasks(filtered);
+
+      container.innerHTML = filtered.map(t => {
+        const dueSoon = t.status !== 'done' && isDueSoon(t.due);
+        const overdue = t.status !== 'done' && isOverdue(t.due);
+        if (editingTaskId === t.id) {
+          return `
+          <div class="glass-light rounded-xl p-4 ring-1 ring-ppg-cream/20">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
+              <div class="md:col-span-2">
+                <label class="block text-xs text-ppg-gray mb-1">Task</label>
+                <input type="text" id="edit-task-title-${t.id}" value="${esc(t.title || '')}" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
+              </div>
+              <div>
+                <label class="block text-xs text-ppg-gray mb-1">Assignee</label>
+                <select id="edit-task-assignee-${t.id}" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
+                  ${['Mark','Rick','Both'].map(a => `<option value="${a}" ${t.assignee === a ? 'selected' : ''}>${a}</option>`).join('')}
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs text-ppg-gray mb-1">Priority</label>
+                <select id="edit-task-priority-${t.id}" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
+                  ${['low','medium','high','urgent'].map(p => `<option value="${p}" ${t.priority === p ? 'selected' : ''}>${p}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+              <div>
+                <label class="block text-xs text-ppg-gray mb-1">Due Date</label>
+                <input type="date" id="edit-task-due-${t.id}" value="${t.due || ''}" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
+              </div>
+              <div>
+                <label class="block text-xs text-ppg-gray mb-1">Status</label>
+                <select id="edit-task-status-${t.id}" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
+                  ${['todo','in-progress','review','done'].map(s => `<option value="${s}" ${t.status === s ? 'selected' : ''}>${s}</option>`).join('')}
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs text-ppg-gray mb-1">Category</label>
+                <input type="text" id="edit-task-category-${t.id}" value="${esc(t.category || '')}" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="block text-xs text-ppg-gray mb-1">Description</label>
+              <textarea id="edit-task-desc-${t.id}" rows="2" class="glass-input w-full rounded-xl px-3 py-2 text-sm resize-y">${esc(t.description || '')}</textarea>
+            </div>
+            <div class="mb-3">
+              <label class="block text-xs text-ppg-gray mb-1">Results / Outcome</label>
+              <textarea id="edit-task-results-${t.id}" rows="3" placeholder="Record results, findings, or outcome before closing..." class="glass-input w-full rounded-xl px-3 py-2 text-sm placeholder-ppg-gray resize-y">${esc(t.results || '')}</textarea>
+            </div>
+            <div class="flex gap-2">
+              <button onclick="saveTaskEdit(${t.id})" class="bg-ppg-navy hover:bg-ppg-deepnavy text-ppg-cream px-4 py-1.5 rounded-xl text-sm font-medium transition-colors">Save</button>
+              <button onclick="cancelTaskEdit()" class="glass-light hover:bg-white/10 text-ppg-gray px-4 py-1.5 rounded-xl text-sm font-medium transition-colors">Cancel</button>
+            </div>
+          </div>`;
+        }
+        return `
+        <div class="glass-light rounded-xl p-4 ${t.status === 'done' ? 'task-done' : ''} ${overdue ? 'ring-1 ring-red-500/30' : dueSoon ? 'ring-1 ring-amber-500/30' : ''}">
           <div class="flex items-start justify-between gap-3">
             <div class="flex items-start gap-3 flex-1">
               <input type="checkbox" ${t.status === 'done' ? 'checked' : ''} onchange="toggleTask(${t.id})" class="mt-1 accent-ppg-cream">
               <div class="flex-1">
                 <h3 class="font-medium text-ppg-cream text-sm">${esc(t.title)}</h3>
-                <div class="flex flex-wrap gap-2 mt-1">
+                <div class="flex flex-wrap items-center gap-2 mt-1">
                   <span class="text-xs ${priorityColors[t.priority]}">${t.priority}</span>
                   <span class="text-xs px-1.5 py-0.5 rounded ${statusBadge[t.status]} text-ppg-cream">${t.status}</span>
                   <span class="text-xs text-ppg-gray">${esc(t.assignee)}</span>
-                  ${t.due ? `<span class="text-xs text-ppg-gray">${t.due}</span>` : ''}
+                  ${t.due ? `<span class="text-xs ${overdue ? 'text-red-400 font-semibold' : dueSoon ? 'text-amber-400 font-semibold' : 'text-ppg-gray'}">${t.due}</span>` : ''}
+                  ${overdue ? '<span class="due-soon-badge text-xs px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 font-medium">Overdue</span>' : ''}
+                  ${dueSoon ? '<span class="due-soon-badge text-xs px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 font-medium">Due Soon</span>' : ''}
                   ${t.category ? `<span class="text-xs text-ppg-cream/60">${esc(t.category)}</span>` : ''}
                 </div>
                 ${t.description ? `<p class="text-xs text-ppg-gray mt-1">${esc(t.description)}</p>` : ''}
+                ${t.results ? `<div class="mt-2 pt-2 border-t border-white/5">
+                  <p class="text-xs text-ppg-cream font-medium mb-1">Results</p>
+                  <p class="text-xs text-ppg-cream/70 whitespace-pre-wrap">${esc(t.results)}</p>
+                </div>` : ''}
               </div>
             </div>
             <div class="flex items-center gap-2 shrink-0">
               <select onchange="updateTaskStatus(${t.id}, this.value)" class="glass-input rounded-lg px-2 py-1 text-xs text-ppg-cream">
                 ${['todo','in-progress','review','done'].map(s => `<option value="${s}" ${t.status === s ? 'selected' : ''}>${s}</option>`).join('')}
               </select>
+              <button onclick="editTask(${t.id})" class="text-ppg-gray/50 hover:text-ppg-cream text-xs transition">Edit</button>
               <button onclick="deleteTask(${t.id})" class="text-ppg-gray/50 hover:text-red-400 text-xs transition">Del</button>
             </div>
           </div>
-        </div>
-      `).join('');
+        </div>`;
+      }).join('');
     }
 
     // ===================== RESOURCES =====================
