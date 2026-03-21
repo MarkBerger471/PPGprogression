@@ -69,10 +69,18 @@
     .nav-btn[data-section="resources"]:hover   { background: rgba(220, 180, 100, 0.08); }
     @keyframes due-pulse {
       0%, 100% { opacity: 1; }
-      50% { opacity: 0.6; }
+      50% { opacity: 0.5; }
     }
     .due-soon-badge {
-      animation: due-pulse 2s ease-in-out infinite;
+      animation: due-pulse 1.5s ease-in-out infinite;
+    }
+    .task-due-soon {
+      background: rgba(245, 158, 11, 0.06);
+      border-left: 3px solid rgba(245, 158, 11, 0.5);
+    }
+    .task-overdue {
+      background: rgba(239, 68, 68, 0.08);
+      border-left: 3px solid rgba(239, 68, 68, 0.6);
     }
     .autosave-flash {
       animation: flash 0.6s ease-out;
@@ -697,7 +705,7 @@
           </div>`;
         }
         return `
-        <div class="glass-light rounded-xl p-4 ${t.status === 'done' ? 'task-done' : ''} ${overdue ? 'ring-1 ring-red-500/30' : dueSoon ? 'ring-1 ring-amber-500/30' : ''}">
+        <div class="glass-light rounded-xl p-4 ${t.status === 'done' ? 'task-done' : ''} ${overdue ? 'ring-2 ring-red-500/40 task-overdue' : dueSoon ? 'ring-2 ring-amber-500/40 task-due-soon' : ''}">
           <div class="flex items-start justify-between gap-3">
             <div class="flex items-start gap-3 flex-1">
               <input type="checkbox" ${t.status === 'done' ? 'checked' : ''} onchange="toggleTask(${t.id})" class="mt-1 accent-ppg-cream">
@@ -708,8 +716,8 @@
                   <span class="text-xs px-1.5 py-0.5 rounded ${statusBadge[t.status]} text-ppg-cream">${t.status}</span>
                   <span class="text-xs text-ppg-gray">${esc(t.assignee)}</span>
                   ${t.due ? `<span class="text-xs ${overdue ? 'text-red-400 font-semibold' : dueSoon ? 'text-amber-400 font-semibold' : 'text-ppg-gray'}">${t.due}</span>` : ''}
-                  ${overdue ? '<span class="due-soon-badge text-xs px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 font-medium">Overdue</span>' : ''}
-                  ${dueSoon ? '<span class="due-soon-badge text-xs px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 font-medium">Due Soon</span>' : ''}
+                  ${overdue ? '<span class="due-soon-badge text-sm px-2.5 py-1 rounded-lg bg-red-500/25 text-red-400 font-semibold">⚠ Overdue</span>' : ''}
+                  ${dueSoon ? '<span class="due-soon-badge text-sm px-2.5 py-1 rounded-lg bg-amber-500/25 text-amber-400 font-semibold">⏰ Due Soon</span>' : ''}
                   ${t.category ? `<span class="text-xs text-ppg-cream/60">${esc(t.category)}</span>` : ''}
                 </div>
                 ${t.description ? `<p class="text-xs text-ppg-gray mt-1">${esc(t.description)}</p>` : ''}
