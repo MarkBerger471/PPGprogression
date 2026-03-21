@@ -144,6 +144,13 @@
 
     <!-- ==================== DASHBOARD ==================== -->
     <section id="sec-dashboard" class="section">
+
+      <!-- Timeline -->
+      <div class="glass rounded-2xl p-6 mb-6">
+        <h3 class="text-sm font-semibold text-ppg-cream uppercase tracking-wider mb-5" style="opacity:0.7;">Milestone Timeline</h3>
+        <div id="milestone-timeline"></div>
+      </div>
+
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div class="glass rounded-2xl p-5">
           <p class="text-xs text-ppg-gray uppercase tracking-wider mb-1">Total Tasks</p>
@@ -993,8 +1000,92 @@
       });
     }
 
+    // ===================== MILESTONE TIMELINE =====================
+    const milestones = [
+      { label: 'BP Decision', date: '2026-04-30', icon: '📋' },
+      { label: 'First Product Launched', date: '2026-09-15', icon: '🚀' },
+    ];
+
+    function renderTimeline() {
+      const container = document.getElementById('milestone-timeline');
+      const now = new Date();
+      now.setHours(0,0,0,0);
+
+      // Calculate the full span from today to last milestone
+      const startDate = now;
+      const endDate = new Date(milestones[milestones.length - 1].date + 'T00:00:00');
+      const totalSpan = endDate - startDate;
+
+      const html = `
+        <div class="relative">
+          <!-- Progress bar track -->
+          <div class="flex items-center gap-0 relative">
+            ${milestones.map((m, i) => {
+              const target = new Date(m.date + 'T00:00:00');
+              const daysLeft = Math.ceil((target - now) / (1000 * 60 * 60 * 24));
+              const isPast = daysLeft <= 0;
+              const isClose = daysLeft > 0 && daysLeft <= 30;
+              const isMid = daysLeft > 30 && daysLeft <= 90;
+
+              // Progress towards this milestone (from project start or previous milestone)
+              const mStart = i === 0 ? now : new Date(milestones[i-1].date + 'T00:00:00');
+              const mEnd = target;
+              const elapsed = now - mStart;
+              const segTotal = mEnd - mStart;
+              const progress = isPast ? 100 : Math.max(0, Math.min(100, (elapsed / segTotal) * 100));
+
+              // Color based on status
+              let barColor, dotColor, textColor, bgTint;
+              if (isPast) {
+                barColor = 'bg-green-500'; dotColor = 'bg-green-400'; textColor = 'text-green-400'; bgTint = 'bg-green-500/10';
+              } else if (isClose) {
+                barColor = 'bg-amber-500'; dotColor = 'bg-amber-400'; textColor = 'text-amber-400'; bgTint = 'bg-amber-500/10';
+              } else if (isMid) {
+                barColor = 'bg-blue-500'; dotColor = 'bg-blue-400'; textColor = 'text-blue-400'; bgTint = 'bg-blue-500/10';
+              } else {
+                barColor = 'bg-ppg-gray'; dotColor = 'bg-ppg-gray'; textColor = 'text-ppg-gray'; bgTint = 'bg-ppg-gray/10';
+              }
+
+              return `
+              <div class="flex-1 ${i > 0 ? '' : ''}">
+                <!-- Segment -->
+                <div class="flex items-center gap-0">
+                  ${i === 0 ? `<div class="w-3 h-3 rounded-full bg-ppg-cream shrink-0 ring-2 ring-ppg-cream/30 z-10"></div>` : ''}
+                  <!-- Bar -->
+                  <div class="flex-1 h-2 rounded-full bg-white/5 mx-2 overflow-hidden">
+                    <div class="${barColor} h-full rounded-full transition-all" style="width: ${progress}%"></div>
+                  </div>
+                  <!-- Milestone dot -->
+                  <div class="w-4 h-4 rounded-full ${isPast ? dotColor : 'bg-white/10 ring-2 ' + (isClose ? 'ring-amber-400/50' : isMid ? 'ring-blue-400/30' : 'ring-ppg-gray/20')} shrink-0 z-10 flex items-center justify-center">
+                    ${isPast ? '<svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>' : ''}
+                  </div>
+                </div>
+                <!-- Label -->
+                <div class="text-right mt-3 pr-1">
+                  <div class="flex items-center justify-end gap-1.5">
+                    <span class="text-base">${m.icon}</span>
+                    <span class="text-sm font-semibold text-ppg-cream">${esc(m.label)}</span>
+                  </div>
+                  <p class="text-xs ${textColor} mt-0.5">${m.date}</p>
+                  <span class="inline-block mt-1 text-xs font-bold px-2.5 py-1 rounded-lg ${bgTint} ${textColor}">
+                    ${isPast ? '✓ Complete' : daysLeft + ' days to go'}
+                  </span>
+                </div>
+              </div>`;
+            }).join('')}
+          </div>
+          <!-- Today marker -->
+          <div class="mt-3 pl-0">
+            <span class="text-xs text-ppg-gray">Today: ${now.toISOString().split('T')[0]}</span>
+          </div>
+        </div>
+      `;
+      container.innerHTML = html;
+    }
+
     // ===================== INIT =====================
     document.getElementById('mtg-date').value = new Date().toISOString().split('T')[0];
+    renderTimeline();
     renderMeetings();
     renderTasks();
     renderResources();
