@@ -485,8 +485,8 @@
               <p class="text-xs text-ppg-gray">${m.date} &middot; ${esc(m.attendees || 'No attendees listed')}</p>
             </div>
             <div class="flex gap-2">
-              <button onclick="editMeeting(${m.id})" class="text-ppg-gray/50 hover:text-ppg-cream text-xs transition">Edit</button>
-              <button onclick="deleteMeeting(${m.id})" class="text-ppg-gray/50 hover:text-red-400 text-xs transition">Delete</button>
+              <button onclick="editMeeting(${m.id})" class="glass-light text-ppg-gray hover:text-ppg-cream text-sm px-3 py-1.5 rounded-lg transition">Edit</button>
+              <button onclick="deleteMeeting(${m.id})" class="glass-light text-ppg-gray hover:text-red-400 text-sm px-3 py-1.5 rounded-lg transition">Delete</button>
             </div>
           </div>
           ${m.notes ? `<div class="text-sm text-ppg-cream/70 mb-2 whitespace-pre-wrap">${esc(m.notes)}</div>` : ''}
@@ -723,8 +723,8 @@
               <select onchange="updateTaskStatus(${t.id}, this.value)" class="glass-input rounded-lg px-2 py-1 text-xs text-ppg-cream">
                 ${['todo','in-progress','review','done'].map(s => `<option value="${s}" ${t.status === s ? 'selected' : ''}>${s}</option>`).join('')}
               </select>
-              <button onclick="editTask(${t.id})" class="text-ppg-gray/50 hover:text-ppg-cream text-xs transition">Edit</button>
-              <button onclick="deleteTask(${t.id})" class="text-ppg-gray/50 hover:text-red-400 text-xs transition">Del</button>
+              <button onclick="editTask(${t.id})" class="glass-light text-ppg-gray hover:text-ppg-cream text-sm px-3 py-1.5 rounded-lg transition">Edit</button>
+              <button onclick="deleteTask(${t.id})" class="glass-light text-ppg-gray hover:text-red-400 text-sm px-3 py-1.5 rounded-lg transition">Delete</button>
             </div>
           </div>
         </div>`;
@@ -884,8 +884,8 @@
               ${r.description ? `<p class="text-xs text-ppg-gray mt-1">${esc(r.description)}</p>` : ''}
             </div>
             <div class="flex gap-2 shrink-0">
-              <button onclick="editResource(${r.id})" class="text-ppg-gray/50 hover:text-ppg-cream text-xs transition">Edit</button>
-              <button onclick="deleteResource(${r.id})" class="text-ppg-gray/50 hover:text-red-400 text-xs transition">Delete</button>
+              <button onclick="editResource(${r.id})" class="glass-light text-ppg-gray hover:text-ppg-cream text-sm px-3 py-1.5 rounded-lg transition">Edit</button>
+              <button onclick="deleteResource(${r.id})" class="glass-light text-ppg-gray hover:text-red-400 text-sm px-3 py-1.5 rounded-lg transition">Delete</button>
             </div>
           </div>`;
         }).join('');
