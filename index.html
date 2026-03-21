@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PPG Prime Performance Group — Progress Tracker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ppg: {
+              dark: '#0f172a',
+              navy: '#1e293b',
+              accent: '#3b82f6',
+              gold: '#f59e0b',
+              light: '#e2e8f0',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+
+    .glass {
+      background: rgba(30, 41, 59, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-light {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .glass-input {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .glass-input:focus {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: #3b82f6;
+      outline: none;
+    }
+    .nav-btn.active {
+      background: rgba(59, 130, 246, 0.2);
+      color: #3b82f6;
+      border-color: rgba(59, 130, 246, 0.3);
+    }
+    .autosave-flash {
+      animation: flash 0.6s ease-out;
+    }
+    @keyframes flash {
+      0% { color: #22c55e; }
+      100% { color: #94a3b8; }
+    }
+    .task-done { opacity: 0.5; text-decoration: line-through; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    .bg-mesh {
+      background-image:
+        radial-gradient(at 20% 20%, rgba(59,130,246,0.15) 0%, transparent 50%),
+        radial-gradient(at 80% 80%, rgba(245,158,11,0.1) 0%, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(59,130,246,0.05) 0%, transparent 70%);
+    }
+  </style>
+</head>
+<body class="bg-ppg-dark text-ppg-light min-h-screen bg-mesh">
+
+  <!-- Header -->
+  <header class="glass sticky top-0 z-50 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-ppg-accent to-ppg-gold flex items-center justify-center font-extrabold text-ppg-dark text-lg">
+          P
+        </div>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight">PPG <span class="text-ppg-accent">Prime Performance Group</span></h1>
+          <p class="text-xs text-slate-400">Startup Progress Tracker &middot; Mark & Rick</p>
+        </div>
+      </div>
+      <div id="saveIndicator" class="text-xs text-slate-500 flex items-center gap-1">
+        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><circle cx="10" cy="10" r="4"/></svg>
+        <span>Autosave active</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation -->
+  <nav class="max-w-7xl mx-auto px-6 pt-6">
+    <div class="flex gap-2 flex-wrap">
+      <button onclick="showSection('dashboard')" class="nav-btn active glass-light px-4 py-2 rounded-xl text-sm font-medium transition-all" data-section="dashboard">Dashboard</button>
+      <button onclick="showSection('meetings')" class="nav-btn glass-light px-4 py-2 rounded-xl text-sm font-medium transition-all" data-section="meetings">Meeting Log</button>
+      <button onclick="showSection('tasks')" class="nav-btn glass-light px-4 py-2 rounded-xl text-sm font-medium transition-all" data-section="tasks">Tasks & Todos</button>
+      <button onclick="showSection('resources')" class="nav-btn glass-light px-4 py-2 rounded-xl text-sm font-medium transition-all" data-section="resources">Resources & Links</button>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-6 py-6">
+
+    <!-- ==================== DASHBOARD ==================== -->
+    <section id="sec-dashboard" class="section">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="glass rounded-2xl p-5">
+          <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Total Tasks</p>
+          <p id="stat-total" class="text-3xl font-bold text-white">0</p>
+        </div>
+        <div class="glass rounded-2xl p-5">
+          <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Completed</p>
+          <p id="stat-done" class="text-3xl font-bold text-green-400">0</p>
+        </div>
+        <div class="glass rounded-2xl p-5">
+          <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Meetings Logged</p>
+          <p id="stat-meetings" class="text-3xl font-bold text-ppg-gold">0</p>
+        </div>
+      </div>
+
+      <!-- Quick overview -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="glass rounded-2xl p-5">
+          <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-3">Recent Meetings</h3>
+          <div id="dash-meetings" class="space-y-2 text-sm text-slate-400">
+            <p class="italic">No meetings yet.</p>
+          </div>
+        </div>
+        <div class="glass rounded-2xl p-5">
+          <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-3">Upcoming Tasks</h3>
+          <div id="dash-tasks" class="space-y-2 text-sm text-slate-400">
+            <p class="italic">No tasks yet.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== MEETING LOG ==================== -->
+    <section id="sec-meetings" class="section hidden">
+      <div class="glass rounded-2xl p-6 mb-6">
+        <h2 class="text-lg font-semibold text-white mb-4">New Meeting Entry</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Date</label>
+            <input type="date" id="mtg-date" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Attendees</label>
+            <input type="text" id="mtg-attendees" placeholder="Mark, Rick" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white placeholder-slate-500">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Topic</label>
+            <input type="text" id="mtg-topic" placeholder="Meeting topic" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white placeholder-slate-500">
+          </div>
+        </div>
+        <div class="mb-4">
+          <label class="block text-xs text-slate-400 mb-1">Meeting Minutes / Notes</label>
+          <textarea id="mtg-notes" rows="5" placeholder="Write your meeting minutes here..." class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white placeholder-slate-500 resize-y"></textarea>
+        </div>
+        <div class="mb-4">
+          <label class="block text-xs text-slate-400 mb-1">Action Items</label>
+          <textarea id="mtg-actions" rows="3" placeholder="List action items from this meeting..." class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white placeholder-slate-500 resize-y"></textarea>
+        </div>
+        <button onclick="addMeeting()" class="bg-ppg-accent hover:bg-blue-600 text-white px-5 py-2 rounded-xl text-sm font-medium transition-colors">Save Meeting</button>
+      </div>
+
+      <div class="glass rounded-2xl p-6">
+        <h2 class="text-lg font-semibold text-white mb-4">Meeting History</h2>
+        <div id="meeting-list" class="space-y-4">
+          <p class="text-sm text-slate-500 italic">No meetings logged yet.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TASKS & TODOS ==================== -->
+    <section id="sec-tasks" class="section hidden">
+      <div class="glass rounded-2xl p-6 mb-6">
+        <h2 class="text-lg font-semibold text-white mb-4">Add Task</h2>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+          <div class="md:col-span-2">
+            <label class="block text-xs text-slate-400 mb-1">Task</label>
+            <input type="text" id="task-title" placeholder="What needs to be done?" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white placeholder-slate-500">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Assignee</label>
+            <select id="task-assignee" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white">
+              <option value="Mark">Mark</option>
+              <option value="Rick">Rick</option>
+              <option value="Both">Both</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Priority</label>
+            <select id="task-priority" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white">
+              <option value="low">Low</option>
+              <option value="medium" selected>Medium</option>
+              <option value="high">High</option>
+              <option value="urgent">Urgent</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Due Date</label>
+            <input type="date" id="task-due" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Status</label>
+            <select id="task-status" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white">
+              <option value="todo">To Do</option>
+              <option value="in-progress">In Progress</option>
+              <option value="review">Review</option>
+              <option value="done">Done</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Category</label>
+            <input type="text" id="task-category" placeholder="e.g. Marketing, Dev, Legal" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white placeholder-slate-500">
+          </div>
+        </div>
+        <div class="mb-4">
+          <label class="block text-xs text-slate-400 mb-1">Description</label>
+          <textarea id="task-desc" rows="2" placeholder="Additional details..." class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white placeholder-slate-500 resize-y"></textarea>
+        </div>
+        <button onclick="addTask()" class="bg-ppg-accent hover:bg-blue-600 text-white px-5 py-2 rounded-xl text-sm font-medium transition-colors">Add Task</button>
+      </div>
+
+      <!-- Filters -->
+      <div class="flex flex-wrap gap-2 mb-4">
+        <button onclick="filterTasks('all')" class="filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition" data-filter="all">All</button>
+        <button onclick="filterTasks('todo')" class="filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition" data-filter="todo">To Do</button>
+        <button onclick="filterTasks('in-progress')" class="filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition" data-filter="in-progress">In Progress</button>
+        <button onclick="filterTasks('review')" class="filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition" data-filter="review">Review</button>
+        <button onclick="filterTasks('done')" class="filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition" data-filter="done">Done</button>
+        <span class="text-slate-600 mx-1">|</span>
+        <button onclick="filterTasks('Mark')" class="filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition" data-filter="Mark">Mark</button>
+        <button onclick="filterTasks('Rick')" class="filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition" data-filter="Rick">Rick</button>
+      </div>
+
+      <div class="glass rounded-2xl p-6">
+        <h2 class="text-lg font-semibold text-white mb-4">Task Board</h2>
+        <div id="task-list" class="space-y-3">
+          <p class="text-sm text-slate-500 italic">No tasks yet.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== RESOURCES & LINKS ==================== -->
+    <section id="sec-resources" class="section hidden">
+      <div class="glass rounded-2xl p-6 mb-6">
+        <h2 class="text-lg font-semibold text-white mb-4">Add Resource / Link</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Title</label>
+            <input type="text" id="res-title" placeholder="Resource name" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white placeholder-slate-500">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">URL</label>
+            <input type="url" id="res-url" placeholder="https://..." class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white placeholder-slate-500">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Category</label>
+            <select id="res-category" class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white">
+              <option value="Data">Data</option>
+              <option value="Documents">Documents</option>
+              <option value="Tools">Tools</option>
+              <option value="Research">Research</option>
+              <option value="Legal">Legal</option>
+              <option value="Finance">Finance</option>
+              <option value="Marketing">Marketing</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="mb-4">
+          <label class="block text-xs text-slate-400 mb-1">Description</label>
+          <input type="text" id="res-desc" placeholder="Brief description..." class="glass-input w-full rounded-xl px-3 py-2 text-sm text-white placeholder-slate-500">
+        </div>
+        <button onclick="addResource()" class="bg-ppg-accent hover:bg-blue-600 text-white px-5 py-2 rounded-xl text-sm font-medium transition-colors">Add Resource</button>
+      </div>
+
+      <!-- Resource filter by category -->
+      <div class="flex flex-wrap gap-2 mb-4" id="res-filters">
+        <button onclick="filterResources('all')" class="res-filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition">All</button>
+      </div>
+
+      <div class="glass rounded-2xl p-6">
+        <h2 class="text-lg font-semibold text-white mb-4">Resources Library</h2>
+        <div id="resource-list" class="space-y-3">
+          <p class="text-sm text-slate-500 italic">No resources added yet.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="max-w-7xl mx-auto px-6 py-8 text-center text-xs text-slate-600">
+    PPG Prime Performance Group &copy; 2026 &middot; Mark & Rick
+  </footer>
+
+  <script>
+    // ===================== DATA STORE =====================
+    const STORE_KEYS = { meetings: 'ppg_meetings', tasks: 'ppg_tasks', resources: 'ppg_resources' };
+
+    function load(key) {
+      try { return JSON.parse(localStorage.getItem(key)) || []; }
+      catch { return []; }
+    }
+    function save(key, data) {
+      localStorage.setItem(key, JSON.stringify(data));
+      flashSave();
+    }
+
+    let meetings = load(STORE_KEYS.meetings);
+    let tasks = load(STORE_KEYS.tasks);
+    let resources = load(STORE_KEYS.resources);
+    let currentFilter = 'all';
+    let currentResFilter = 'all';
+
+    // ===================== AUTOSAVE INDICATOR =====================
+    function flashSave() {
+      const el = document.getElementById('saveIndicator');
+      el.querySelector('span').textContent = 'Saved!';
+      el.classList.add('autosave-flash');
+      setTimeout(() => {
+        el.querySelector('span').textContent = 'Autosave active';
+        el.classList.remove('autosave-flash');
+      }, 1500);
+    }
+
+    // ===================== NAVIGATION =====================
+    function showSection(name) {
+      document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+      document.getElementById('sec-' + name).classList.remove('hidden');
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector(`[data-section="${name}"]`).classList.add('active');
+    }
+
+    // ===================== MEETINGS =====================
+    function addMeeting() {
+      const date = document.getElementById('mtg-date').value;
+      const attendees = document.getElementById('mtg-attendees').value.trim();
+      const topic = document.getElementById('mtg-topic').value.trim();
+      const notes = document.getElementById('mtg-notes').value.trim();
+      const actions = document.getElementById('mtg-actions').value.trim();
+
+      if (!topic && !notes) return alert('Please add a topic or notes.');
+
+      meetings.unshift({
+        id: Date.now(),
+        date: date || new Date().toISOString().split('T')[0],
+        attendees,
+        topic,
+        notes,
+        actions,
+        createdAt: new Date().toISOString()
+      });
+      save(STORE_KEYS.meetings, meetings);
+      clearMeetingForm();
+      renderMeetings();
+      updateDashboard();
+    }
+
+    function deleteMeeting(id) {
+      meetings = meetings.filter(m => m.id !== id);
+      save(STORE_KEYS.meetings, meetings);
+      renderMeetings();
+      updateDashboard();
+    }
+
+    function clearMeetingForm() {
+      ['mtg-date','mtg-attendees','mtg-topic','mtg-notes','mtg-actions'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      document.getElementById('mtg-date').value = new Date().toISOString().split('T')[0];
+    }
+
+    function renderMeetings() {
+      const container = document.getElementById('meeting-list');
+      if (meetings.length === 0) {
+        container.innerHTML = '<p class="text-sm text-slate-500 italic">No meetings logged yet.</p>';
+        return;
+      }
+      container.innerHTML = meetings.map(m => `
+        <div class="glass-light rounded-xl p-4">
+          <div class="flex items-start justify-between mb-2">
+            <div>
+              <h3 class="font-semibold text-white">${esc(m.topic || 'Untitled Meeting')}</h3>
+              <p class="text-xs text-slate-400">${m.date} &middot; ${esc(m.attendees || 'No attendees listed')}</p>
+            </div>
+            <button onclick="deleteMeeting(${m.id})" class="text-slate-600 hover:text-red-400 text-xs transition">Delete</button>
+          </div>
+          ${m.notes ? `<div class="text-sm text-slate-300 mb-2 whitespace-pre-wrap">${esc(m.notes)}</div>` : ''}
+          ${m.actions ? `<div class="mt-2 pt-2 border-t border-white/5">
+            <p class="text-xs text-ppg-gold font-medium mb-1">Action Items</p>
+            <div class="text-sm text-slate-300 whitespace-pre-wrap">${esc(m.actions)}</div>
+          </div>` : ''}
+        </div>
+      `).join('');
+    }
+
+    // ===================== TASKS =====================
+    function addTask() {
+      const title = document.getElementById('task-title').value.trim();
+      if (!title) return alert('Please enter a task title.');
+
+      tasks.unshift({
+        id: Date.now(),
+        title,
+        assignee: document.getElementById('task-assignee').value,
+        priority: document.getElementById('task-priority').value,
+        due: document.getElementById('task-due').value,
+        status: document.getElementById('task-status').value,
+        category: document.getElementById('task-category').value.trim(),
+        description: document.getElementById('task-desc').value.trim(),
+        createdAt: new Date().toISOString()
+      });
+      save(STORE_KEYS.tasks, tasks);
+      clearTaskForm();
+      renderTasks();
+      updateDashboard();
+    }
+
+    function toggleTask(id) {
+      const t = tasks.find(t => t.id === id);
+      if (t) {
+        t.status = t.status === 'done' ? 'todo' : 'done';
+        save(STORE_KEYS.tasks, tasks);
+        renderTasks();
+        updateDashboard();
+      }
+    }
+
+    function updateTaskStatus(id, status) {
+      const t = tasks.find(t => t.id === id);
+      if (t) {
+        t.status = status;
+        save(STORE_KEYS.tasks, tasks);
+        renderTasks();
+        updateDashboard();
+      }
+    }
+
+    function deleteTask(id) {
+      tasks = tasks.filter(t => t.id !== id);
+      save(STORE_KEYS.tasks, tasks);
+      renderTasks();
+      updateDashboard();
+    }
+
+    function clearTaskForm() {
+      document.getElementById('task-title').value = '';
+      document.getElementById('task-desc').value = '';
+      document.getElementById('task-category').value = '';
+      document.getElementById('task-due').value = '';
+      document.getElementById('task-priority').value = 'medium';
+      document.getElementById('task-status').value = 'todo';
+    }
+
+    function filterTasks(filter) {
+      currentFilter = filter;
+      renderTasks();
+    }
+
+    const priorityColors = { urgent: 'text-red-400', high: 'text-orange-400', medium: 'text-ppg-accent', low: 'text-slate-400' };
+    const statusBadge = { todo: 'bg-slate-600', 'in-progress': 'bg-blue-600', review: 'bg-purple-600', done: 'bg-green-600' };
+
+    function renderTasks() {
+      const container = document.getElementById('task-list');
+      let filtered = tasks;
+      if (currentFilter !== 'all') {
+        filtered = tasks.filter(t => t.status === currentFilter || t.assignee === currentFilter);
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<p class="text-sm text-slate-500 italic">No tasks match this filter.</p>';
+        return;
+      }
+
+      container.innerHTML = filtered.map(t => `
+        <div class="glass-light rounded-xl p-4 ${t.status === 'done' ? 'task-done' : ''}">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-start gap-3 flex-1">
+              <input type="checkbox" ${t.status === 'done' ? 'checked' : ''} onchange="toggleTask(${t.id})" class="mt-1 accent-ppg-accent">
+              <div class="flex-1">
+                <h3 class="font-medium text-white text-sm">${esc(t.title)}</h3>
+                <div class="flex flex-wrap gap-2 mt-1">
+                  <span class="text-xs ${priorityColors[t.priority]}">${t.priority}</span>
+                  <span class="text-xs px-1.5 py-0.5 rounded ${statusBadge[t.status]} text-white">${t.status}</span>
+                  <span class="text-xs text-slate-400">${esc(t.assignee)}</span>
+                  ${t.due ? `<span class="text-xs text-slate-400">${t.due}</span>` : ''}
+                  ${t.category ? `<span class="text-xs text-ppg-gold">${esc(t.category)}</span>` : ''}
+                </div>
+                ${t.description ? `<p class="text-xs text-slate-400 mt-1">${esc(t.description)}</p>` : ''}
+              </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <select onchange="updateTaskStatus(${t.id}, this.value)" class="glass-input rounded-lg px-2 py-1 text-xs text-white">
+                ${['todo','in-progress','review','done'].map(s => `<option value="${s}" ${t.status === s ? 'selected' : ''}>${s}</option>`).join('')}
+              </select>
+              <button onclick="deleteTask(${t.id})" class="text-slate-600 hover:text-red-400 text-xs transition">Del</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ===================== RESOURCES =====================
+    function addResource() {
+      const title = document.getElementById('res-title').value.trim();
+      const url = document.getElementById('res-url').value.trim();
+      if (!title && !url) return alert('Please add a title or URL.');
+
+      resources.unshift({
+        id: Date.now(),
+        title,
+        url,
+        category: document.getElementById('res-category').value,
+        description: document.getElementById('res-desc').value.trim(),
+        createdAt: new Date().toISOString()
+      });
+      save(STORE_KEYS.resources, resources);
+      clearResourceForm();
+      renderResources();
+      renderResourceFilters();
+    }
+
+    function deleteResource(id) {
+      resources = resources.filter(r => r.id !== id);
+      save(STORE_KEYS.resources, resources);
+      renderResources();
+      renderResourceFilters();
+    }
+
+    function clearResourceForm() {
+      document.getElementById('res-title').value = '';
+      document.getElementById('res-url').value = '';
+      document.getElementById('res-desc').value = '';
+      document.getElementById('res-category').value = 'Data';
+    }
+
+    function filterResources(cat) {
+      currentResFilter = cat;
+      renderResources();
+    }
+
+    function renderResourceFilters() {
+      const cats = [...new Set(resources.map(r => r.category))];
+      const container = document.getElementById('res-filters');
+      container.innerHTML = `<button onclick="filterResources('all')" class="res-filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition">All</button>` +
+        cats.map(c => `<button onclick="filterResources('${c}')" class="res-filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition">${esc(c)}</button>`).join('');
+    }
+
+    function renderResources() {
+      const container = document.getElementById('resource-list');
+      let filtered = currentResFilter === 'all' ? resources : resources.filter(r => r.category === currentResFilter);
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<p class="text-sm text-slate-500 italic">No resources added yet.</p>';
+        return;
+      }
+
+      container.innerHTML = filtered.map(r => `
+        <div class="glass-light rounded-xl p-4 flex items-start justify-between gap-3">
+          <div class="flex-1">
+            <div class="flex items-center gap-2">
+              <span class="text-xs px-2 py-0.5 rounded-lg bg-ppg-accent/20 text-ppg-accent">${esc(r.category)}</span>
+              <h3 class="font-medium text-white text-sm">${esc(r.title || 'Untitled')}</h3>
+            </div>
+            ${r.url ? `<a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer" class="text-xs text-ppg-accent hover:underline mt-1 block truncate">${esc(r.url)}</a>` : ''}
+            ${r.description ? `<p class="text-xs text-slate-400 mt-1">${esc(r.description)}</p>` : ''}
+          </div>
+          <button onclick="deleteResource(${r.id})" class="text-slate-600 hover:text-red-400 text-xs transition shrink-0">Delete</button>
+        </div>
+      `).join('');
+    }
+
+    // ===================== DASHBOARD =====================
+    function updateDashboard() {
+      document.getElementById('stat-total').textContent = tasks.length;
+      document.getElementById('stat-done').textContent = tasks.filter(t => t.status === 'done').length;
+      document.getElementById('stat-meetings').textContent = meetings.length;
+
+      // Recent meetings
+      const dm = document.getElementById('dash-meetings');
+      const recentMtg = meetings.slice(0, 3);
+      dm.innerHTML = recentMtg.length === 0
+        ? '<p class="italic">No meetings yet.</p>'
+        : recentMtg.map(m => `<div class="glass-light rounded-lg p-2 cursor-pointer" onclick="showSection('meetings')">
+            <span class="text-white text-xs font-medium">${esc(m.topic || 'Untitled')}</span>
+            <span class="text-slate-500 text-xs ml-2">${m.date}</span>
+          </div>`).join('');
+
+      // Upcoming tasks
+      const dt = document.getElementById('dash-tasks');
+      const upcoming = tasks.filter(t => t.status !== 'done').slice(0, 5);
+      dt.innerHTML = upcoming.length === 0
+        ? '<p class="italic">No open tasks.</p>'
+        : upcoming.map(t => `<div class="glass-light rounded-lg p-2 cursor-pointer" onclick="showSection('tasks')">
+            <span class="text-white text-xs font-medium">${esc(t.title)}</span>
+            <span class="text-xs ${priorityColors[t.priority]} ml-2">${t.priority}</span>
+            <span class="text-slate-500 text-xs ml-2">${esc(t.assignee)}</span>
+          </div>`).join('');
+    }
+
+    // ===================== UTILS =====================
+    function esc(str) {
+      const d = document.createElement('div');
+      d.textContent = str;
+      return d.innerHTML;
+    }
+
+    // ===================== AUTOSAVE FORM DRAFTS =====================
+    function setupAutosaveDrafts() {
+      const draftKey = 'ppg_drafts';
+      const fields = [
+        'mtg-date','mtg-attendees','mtg-topic','mtg-notes','mtg-actions',
+        'task-title','task-assignee','task-priority','task-due','task-status','task-category','task-desc',
+        'res-title','res-url','res-category','res-desc'
+      ];
+
+      // Restore drafts
+      const drafts = JSON.parse(localStorage.getItem(draftKey) || '{}');
+      fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && drafts[id]) el.value = drafts[id];
+      });
+
+      // Save drafts on input
+      fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', () => {
+            const d = JSON.parse(localStorage.getItem(draftKey) || '{}');
+            d[id] = el.value;
+            localStorage.setItem(draftKey, JSON.stringify(d));
+          });
+          el.addEventListener('change', () => {
+            const d = JSON.parse(localStorage.getItem(draftKey) || '{}');
+            d[id] = el.value;
+            localStorage.setItem(draftKey, JSON.stringify(d));
+          });
+        }
+      });
+    }
+
+    // ===================== INIT =====================
+    document.getElementById('mtg-date').value = new Date().toISOString().split('T')[0];
+    renderMeetings();
+    renderTasks();
+    renderResources();
+    renderResourceFilters();
+    updateDashboard();
+    setupAutosaveDrafts();
+  </script>
+</body>
+</html>
