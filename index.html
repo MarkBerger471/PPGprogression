@@ -176,6 +176,41 @@
     /* === Stat card number animation === */
     .stat-value { font-variant-numeric: tabular-nums; }
 
+    /* === Timeline === */
+    @keyframes countdown-pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+    }
+    @keyframes glow-breathe {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+    .countdown-num {
+      font-variant-numeric: tabular-nums;
+      animation: countdown-pulse 3s ease-in-out infinite;
+    }
+    .milestone-glow {
+      animation: glow-breathe 3s ease-in-out infinite;
+    }
+    .timeline-connector {
+      position: relative;
+      overflow: hidden;
+    }
+    .timeline-connector::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+      animation: shimmer 3s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
     /* === Filter pills === */
     .filter-pill {
       background: rgba(255,255,255,0.03);
@@ -218,10 +253,13 @@
 
   <!-- ====== TIMELINE (always visible) ====== -->
   <div class="max-w-6xl mx-auto px-6 pt-6">
-    <div class="glass rounded-2xl p-5">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-xs font-semibold text-txt-3 uppercase tracking-widest">Milestones</h3>
-        <span class="text-xs text-txt-3" id="today-label"></span>
+    <div class="glass rounded-2xl p-6 pb-5">
+      <div class="flex items-center justify-between mb-5">
+        <div class="flex items-center gap-3">
+          <h3 class="text-xs font-semibold text-txt-3 uppercase tracking-widest">Journey</h3>
+          <span class="text-xs text-txt-3/50" id="today-label"></span>
+        </div>
+        <div class="flex items-center gap-2" id="overall-progress"></div>
       </div>
       <div id="milestone-timeline"></div>
     </div>
@@ -704,39 +742,137 @@
 
     // ===================== MILESTONE TIMELINE =====================
     const milestones = [
+      { label: 'Project Kickoff', date: '2026-01-08', icon: '⚡' },
+      { label: 'Founder Alignment', date: '2026-03-20', icon: '🤝' },
       { label: 'BP Decision', date: '2026-04-30', icon: '📋' },
-      { label: 'First Product Launched', date: '2026-09-15', icon: '🚀' },
+      { label: 'First Product Launch', date: '2026-09-15', icon: '🚀' },
     ];
+
     function renderTimeline() {
       const container = document.getElementById('milestone-timeline');
       const now = new Date(); now.setHours(0,0,0,0);
-      document.getElementById('today-label').textContent = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-      const lastDate = new Date(milestones[milestones.length - 1].date + 'T00:00:00');
-      const totalDays = Math.max(1, Math.ceil((lastDate - now) / 86400000));
-      const segments = milestones.map((m, i) => {
+      document.getElementById('today-label').textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
+      const startDate = new Date(milestones[0].date + 'T00:00:00');
+      const endDate = new Date(milestones[milestones.length - 1].date + 'T00:00:00');
+      const totalSpan = endDate - startDate;
+
+      const data = milestones.map(m => {
         const target = new Date(m.date + 'T00:00:00');
-        const prevDate = i === 0 ? now : new Date(milestones[i-1].date + 'T00:00:00');
-        const segDays = Math.max(1, Math.ceil((target - prevDate) / 86400000));
         const daysLeft = Math.ceil((target - now) / 86400000);
         const isPast = daysLeft <= 0;
-        const progress = isPast ? 100 : Math.max(0, Math.min(100, ((now - prevDate) / (target - prevDate)) * 100));
-        const widthPct = (segDays / totalDays) * 100;
-        return { ...m, daysLeft, isPast, progress, widthPct };
+        const daysSince = isPast ? Math.abs(daysLeft) : 0;
+        const position = ((target - startDate) / totalSpan) * 100;
+        return { ...m, daysLeft, isPast, daysSince, position, target };
       });
-      function gc(d, p) {
-        if (p) return { bar: '#22c55e', glow: 'rgba(34,197,94,0.25)', text: 'text-emerald-400' };
-        if (d <= 30) return { bar: '#fbbf24', glow: 'rgba(251,191,36,0.25)', text: 'text-amber-400' };
-        if (d <= 90) return { bar: '#a78bfa', glow: 'rgba(167,139,250,0.2)', text: 'text-accent' };
-        return { bar: '#6b6966', glow: 'rgba(107,105,102,0.15)', text: 'text-txt-3' };
+
+      // Overall progress from start to end
+      const overallPct = Math.max(0, Math.min(100, ((now - startDate) / totalSpan) * 100));
+      const totalDaysLeft = Math.ceil((endDate - now) / 86400000);
+
+      // Next upcoming milestone
+      const next = data.find(d => !d.isPast);
+
+      // Color system
+      function getColor(daysLeft, isPast) {
+        if (isPast) return { fill: '#22c55e', glow: 'rgba(34,197,94,0.35)', text: '#4ade80', bg: 'rgba(34,197,94,0.08)', label: 'emerald' };
+        if (daysLeft <= 14) return { fill: '#ef4444', glow: 'rgba(239,68,68,0.35)', text: '#f87171', bg: 'rgba(239,68,68,0.08)', label: 'red' };
+        if (daysLeft <= 45) return { fill: '#f59e0b', glow: 'rgba(245,158,11,0.35)', text: '#fbbf24', bg: 'rgba(245,158,11,0.08)', label: 'amber' };
+        if (daysLeft <= 120) return { fill: '#a78bfa', glow: 'rgba(167,139,250,0.3)', text: '#a78bfa', bg: 'rgba(167,139,250,0.06)', label: 'accent' };
+        return { fill: '#6b6966', glow: 'rgba(107,105,102,0.2)', text: '#9a9490', bg: 'rgba(107,105,102,0.06)', label: 'gray' };
       }
-      container.innerHTML = `<div class="flex items-center gap-0">
-        <div class="shrink-0 w-2 h-2 rounded-full bg-txt-1 ring-4 ring-white/5 z-10"></div>
-        ${segments.map(s => { const c = gc(s.daysLeft, s.isPast); return `
-        <div style="flex:${s.widthPct} 0 0;min-width:80px" class="relative">
-          <div class="flex items-center"><div class="flex-1 h-1.5 rounded-full mx-2 overflow-hidden" style="background:rgba(255,255,255,0.06)"><div class="h-full rounded-full" style="width:${s.progress}%;background:${c.bar};box-shadow:0 0 10px ${c.glow}"></div></div><div class="shrink-0 z-10 w-3 h-3 rounded-full" style="background:${s.isPast ? c.bar : 'rgba(255,255,255,0.1)'};box-shadow:0 0 0 3px ${c.glow}"></div></div>
-          <div class="text-right mt-2.5 pr-0.5"><span class="text-sm font-semibold text-txt-1">${s.icon} ${esc(s.label)}</span><div class="flex items-center justify-end gap-2 mt-0.5"><span class="text-xs ${c.text}">${s.date}</span><span class="text-xs font-bold ${c.text}">${s.isPast ? '✓' : s.daysLeft + 'd'}</span></div></div>
-        </div>`; }).join('')}
+
+      // Overall progress indicator
+      document.getElementById('overall-progress').innerHTML = `
+        <span class="text-xs text-txt-3">${Math.round(overallPct)}% complete</span>
+        <div class="w-24 h-1.5 rounded-full overflow-hidden" style="background:rgba(255,255,255,0.06)">
+          <div class="h-full rounded-full" style="width:${overallPct}%;background:linear-gradient(90deg,#22c55e,#a78bfa);"></div>
+        </div>
+      `;
+
+      // Build cards for each milestone
+      const cards = data.map((m, i) => {
+        const c = getColor(m.daysLeft, m.isPast);
+        const isNext = next && next.date === m.date;
+
+        return `<div class="flex-1 min-w-0 animate-in" style="animation-delay:${i * 80}ms">
+          <div class="rounded-xl p-3.5 border transition-all ${isNext ? 'ring-1' : ''}" style="background:${c.bg};border-color:${m.isPast ? 'rgba(34,197,94,0.12)' : isNext ? c.fill + '33' : 'rgba(255,255,255,0.04)'};${isNext ? 'ring-color:' + c.fill + '40;box-shadow:0 0 20px ' + c.glow : ''}">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-lg">${m.icon}</span>
+              <span class="text-xs font-semibold text-txt-1 truncate">${esc(m.label)}</span>
+            </div>
+            <div class="flex items-baseline gap-1">
+              ${m.isPast
+                ? `<span class="text-lg font-bold" style="color:${c.text}">✓</span><span class="text-xs" style="color:${c.text};opacity:0.7">${m.daysSince}d ago</span>`
+                : `<span class="text-2xl font-black countdown-num ${isNext ? 'milestone-glow' : ''}" style="color:${c.text}">${m.daysLeft}</span><span class="text-xs font-medium" style="color:${c.text};opacity:0.7">days</span>`
+              }
+            </div>
+            <p class="text-[10px] text-txt-3 mt-1.5">${m.date}</p>
+          </div>
+        </div>`;
+      }).join('');
+
+      // Build the progress bar with markers
+      // Today position on the full timeline
+      const todayPos = Math.max(0, Math.min(100, ((now - startDate) / totalSpan) * 100));
+
+      // Gradient for the filled portion: green through completed, then color of next milestone
+      const nextColor = next ? getColor(next.daysLeft, false).fill : '#22c55e';
+
+      const markers = data.map(m => {
+        const c = getColor(m.daysLeft, m.isPast);
+        const isNext = next && next.date === m.date;
+        return `<div class="absolute top-1/2 -translate-y-1/2 z-10" style="left:${m.position}%">
+          <div class="w-3.5 h-3.5 rounded-full border-2 -ml-[7px] transition-all" style="background:${m.isPast ? c.fill : '#0c0c0e'};border-color:${c.fill};${isNext ? 'box-shadow:0 0 12px ' + c.glow + ',0 0 4px ' + c.glow : ''}"></div>
+        </div>`;
+      }).join('');
+
+      // Today indicator
+      const todayMarker = `<div class="absolute top-1/2 -translate-y-1/2 z-20" style="left:${todayPos}%">
+        <div class="w-2.5 h-2.5 rounded-full bg-white -ml-[5px]" style="box-shadow:0 0 10px rgba(255,255,255,0.4),0 0 4px rgba(255,255,255,0.6)"></div>
       </div>`;
+
+      container.innerHTML = `
+        <!-- Milestone cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+          ${cards}
+        </div>
+
+        <!-- Progress bar -->
+        <div class="relative h-2 rounded-full overflow-visible" style="background:rgba(255,255,255,0.04)">
+          <!-- Colored fill -->
+          <div class="absolute inset-y-0 left-0 rounded-full timeline-connector" style="width:${todayPos}%;background:linear-gradient(90deg, #22c55e, ${nextColor});box-shadow:0 0 14px ${getColor(next ? next.daysLeft : 0, !next).glow}"></div>
+          <!-- Milestone markers -->
+          ${markers}
+          <!-- Today -->
+          ${todayMarker}
+        </div>
+
+        <!-- Labels under bar -->
+        <div class="relative h-6 mt-1.5">
+          <span class="absolute text-[10px] text-txt-3 font-medium" style="left:0">Jan 8</span>
+          ${data.slice(1).map(m => {
+            const c = getColor(m.daysLeft, m.isPast);
+            return `<span class="absolute text-[10px] font-medium -translate-x-1/2" style="left:${m.position}%;color:${c.text}">${m.isPast ? '✓' : m.daysLeft + 'd'}</span>`;
+          }).join('')}
+        </div>
+
+        ${next ? `
+        <!-- Next milestone callout -->
+        <div class="mt-3 pt-3 border-t border-white/5 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-sm">${next.icon}</span>
+            <span class="text-xs text-txt-2">Next: <span class="text-txt-1 font-semibold">${esc(next.label)}</span></span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xl font-black countdown-num milestone-glow" style="color:${getColor(next.daysLeft, false).text}">${next.daysLeft}</span>
+            <span class="text-xs text-txt-3">days remaining</span>
+          </div>
+        </div>` : `
+        <div class="mt-3 pt-3 border-t border-white/5 text-center">
+          <span class="text-sm text-emerald-400 font-semibold">🎉 All milestones complete!</span>
+        </div>`}
+      `;
     }
 
     // ===================== INIT =====================
