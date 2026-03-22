@@ -10,347 +10,402 @@
       theme: {
         extend: {
           colors: {
-            ppg: {
-              dark: '#0f1923',
-              navy: '#214164',
-              deepnavy: '#213142',
-              gray: '#6A7684',
-              cream: '#F0E6D8',
-              light: '#F3ECE3',
-              sand: '#F4EFE8',
-              accent: '#214164',
-            }
+            surface: { 1: '#0c0c0e', 2: '#141416', 3: '#1c1c1f', 4: '#232327' },
+            txt: { 1: '#f0eeeb', 2: '#a8a5a0', 3: '#6b6966' },
+            accent: '#a78bfa',
+            'accent-dim': '#7c5ecf',
+          },
+          fontFamily: {
+            sans: ['"SF Pro Display"', '"SF Pro Text"', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
           }
         }
       }
     }
   </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-    body { font-family: 'Inter', sans-serif; }
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
 
+    /* === iOS-style glass === */
     .glass {
-      background: rgba(33, 65, 100, 0.25);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(240, 230, 216, 0.08);
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(40px) saturate(180%);
+      -webkit-backdrop-filter: blur(40px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.06);
     }
-    .glass-light {
-      background: rgba(255, 255, 255, 0.04);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(240, 230, 216, 0.06);
+    .glass-elevated {
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(60px) saturate(200%);
+      -webkit-backdrop-filter: blur(60px) saturate(200%);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 0.5px rgba(255,255,255,0.05) inset;
+    }
+    .glass-card {
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(20px) saturate(150%);
+      -webkit-backdrop-filter: blur(20px) saturate(150%);
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-card:hover {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(167,139,250,0.15);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      transform: translateY(-1px);
     }
     .glass-input {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(240, 230, 216, 0.1);
-      color: rgba(240, 230, 216, 0.9);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #f0eeeb;
+      border-radius: 12px;
+      transition: all 0.2s ease;
     }
     .glass-input:focus {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(240, 230, 216, 0.35);
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(167,139,250,0.5);
+      box-shadow: 0 0 0 3px rgba(167,139,250,0.1), 0 0 24px rgba(167,139,250,0.06);
       outline: none;
     }
-    .glass-input option {
-      background: #1a2a3a;
-      color: #F0E6D8;
+    .glass-input::placeholder { color: rgba(168,165,160,0.4); }
+    .glass-input option { background: #1c1c1f; color: #f0eeeb; }
+
+    /* === Nav === */
+    .nav-tab {
+      position: relative;
+      color: #6b6966;
+      transition: color 0.25s ease;
     }
-    .nav-btn.active {
-      color: #F0E6D8;
-      border-color: rgba(240, 230, 216, 0.25);
+    .nav-tab:hover { color: #a8a5a0; }
+    .nav-tab.active { color: #f0eeeb; }
+    .nav-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 2px;
+      background: #a78bfa;
+      border-radius: 1px;
     }
-    .nav-btn[data-section="dashboard"].active { background: rgba(100, 180, 255, 0.15); }
-    .nav-btn[data-section="meetings"].active  { background: rgba(168, 140, 220, 0.15); }
-    .nav-btn[data-section="tasks"].active      { background: rgba(120, 200, 160, 0.15); }
-    .nav-btn[data-section="resources"].active   { background: rgba(220, 180, 100, 0.15); }
-    .nav-btn[data-section="dashboard"]:hover { background: rgba(100, 180, 255, 0.08); }
-    .nav-btn[data-section="meetings"]:hover  { background: rgba(168, 140, 220, 0.08); }
-    .nav-btn[data-section="tasks"]:hover      { background: rgba(120, 200, 160, 0.08); }
-    .nav-btn[data-section="resources"]:hover   { background: rgba(220, 180, 100, 0.08); }
-    @keyframes due-pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
+
+    /* === Buttons === */
+    .btn-primary {
+      background: linear-gradient(135deg, #a78bfa, #8b6fe0);
+      color: white;
+      transition: all 0.25s ease;
     }
-    .due-soon-badge {
-      animation: due-pulse 1.5s ease-in-out infinite;
+    .btn-primary:hover {
+      box-shadow: 0 4px 16px rgba(167,139,250,0.3);
+      transform: translateY(-0.5px);
     }
+    .btn-ghost {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #a8a5a0;
+      transition: all 0.2s ease;
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.08); color: #f0eeeb; }
+    .btn-danger:hover { background: rgba(239,68,68,0.1); color: #f87171; border-color: rgba(239,68,68,0.2); }
+
+    /* === Animations === */
+    @keyframes fade-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slide-in { from { opacity: 0; transform: translateX(-6px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes pulse-glow { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    @keyframes save-flash { 0% { opacity: 1; color: #a78bfa; } 100% { opacity: 1; color: #6b6966; } }
+    .animate-in { animation: fade-in 0.4s ease-out both; }
+    .animate-slide { animation: slide-in 0.3s ease-out both; }
+    .due-soon-badge { animation: pulse-glow 2s ease-in-out infinite; }
+    .autosave-flash { animation: save-flash 1s ease-out; }
+
+    /* === Section transitions === */
+    .section { animation: fade-in 0.3s ease-out; }
+
+    /* === Due alerts === */
     .task-due-soon {
-      background: rgba(245, 158, 11, 0.06);
-      border-left: 3px solid rgba(245, 158, 11, 0.5);
+      border-left: 3px solid rgba(251,191,36,0.6);
+      background: rgba(251,191,36,0.04);
     }
     .task-overdue {
-      background: rgba(239, 68, 68, 0.08);
-      border-left: 3px solid rgba(239, 68, 68, 0.6);
+      border-left: 3px solid rgba(248,113,113,0.6);
+      background: rgba(248,113,113,0.05);
     }
-    .autosave-flash {
-      animation: flash 0.6s ease-out;
+    .task-done { opacity: 0.4; }
+    .task-done h3 { text-decoration: line-through; }
+
+    /* === Checkbox === */
+    input[type="checkbox"] {
+      appearance: none;
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.15);
+      border-radius: 6px;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
     }
-    @keyframes flash {
-      0% { color: #F0E6D8; }
-      100% { color: #6A7684; }
+    input[type="checkbox"]:checked {
+      background: #a78bfa;
+      border-color: #a78bfa;
     }
-    .task-done { opacity: 0.5; text-decoration: line-through; }
+    input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      left: 4px; top: 1px;
+      width: 5px; height: 9px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    /* === Scrollbar === */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(240,230,216,0.1); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.1); }
+
+    /* === Mesh background === */
     .bg-mesh {
       background-image:
-        radial-gradient(at 20% 20%, rgba(33,65,100,0.3) 0%, transparent 50%),
-        radial-gradient(at 80% 80%, rgba(240,230,216,0.06) 0%, transparent 50%),
-        radial-gradient(at 50% 50%, rgba(33,65,100,0.1) 0%, transparent 70%);
+        radial-gradient(ellipse at 15% 10%, rgba(167,139,250,0.07) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 85%, rgba(139,111,224,0.04) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0.01) 0%, transparent 70%);
+    }
+
+    /* === Stat card number animation === */
+    .stat-value { font-variant-numeric: tabular-nums; }
+
+    /* === Filter pills === */
+    .filter-pill {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      color: #6b6966;
+      transition: all 0.2s ease;
+    }
+    .filter-pill:hover { background: rgba(255,255,255,0.06); color: #a8a5a0; }
+    .filter-pill.active {
+      background: rgba(167,139,250,0.12);
+      border-color: rgba(167,139,250,0.25);
+      color: #a78bfa;
     }
   </style>
 </head>
-<body class="bg-ppg-dark min-h-screen bg-mesh" style="color: rgba(240,230,216,0.75);">
+<body class="bg-surface-1 min-h-screen bg-mesh text-txt-2">
 
-  <!-- Header -->
-  <header class="glass sticky top-0 z-50 px-6 py-4">
-    <div class="max-w-7xl mx-auto flex items-center justify-between">
+  <!-- ====== HEADER ====== -->
+  <header class="glass-elevated sticky top-0 z-50 px-6 py-3.5">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <img src="assets/logo.png" alt="Prime Performance Group" class="h-10 w-auto">
-        <div>
-          <p class="text-xs text-ppg-gray">Startup Progress Tracker &middot; Mark & Rick</p>
-        </div>
+        <img src="assets/logo.png" alt="Prime Performance Group" class="h-8 w-auto opacity-90">
+        <div class="hidden sm:block h-5 w-px bg-white/10"></div>
+        <p class="hidden sm:block text-xs text-txt-3 tracking-wide">Progress Tracker</p>
       </div>
-      <div id="saveIndicator" class="text-xs text-ppg-gray flex items-center gap-1">
-        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><circle cx="10" cy="10" r="4"/></svg>
-        <span>Autosave active</span>
+      <div class="flex items-center gap-6">
+        <nav class="flex items-center gap-1">
+          <button onclick="showSection('dashboard')" class="nav-tab active px-3 py-2 text-sm font-medium" data-section="dashboard">Dashboard</button>
+          <button onclick="showSection('meetings')" class="nav-tab px-3 py-2 text-sm font-medium" data-section="meetings">Meetings</button>
+          <button onclick="showSection('tasks')" class="nav-tab px-3 py-2 text-sm font-medium" data-section="tasks">Tasks</button>
+          <button onclick="showSection('resources')" class="nav-tab px-3 py-2 text-sm font-medium" data-section="resources">Resources</button>
+        </nav>
+        <div id="saveIndicator" class="text-xs text-txt-3 flex items-center gap-1.5">
+          <div class="w-1.5 h-1.5 rounded-full bg-emerald-500/60"></div>
+          <span>Autosave active</span>
+        </div>
       </div>
     </div>
   </header>
 
-  <!-- Navigation -->
-  <nav class="max-w-7xl mx-auto px-6 pt-6">
-    <div class="flex gap-2 flex-wrap">
-      <button onclick="showSection('dashboard')" class="nav-btn active glass-light px-4 py-2 rounded-xl text-sm font-medium transition-all" data-section="dashboard">Dashboard</button>
-      <button onclick="showSection('meetings')" class="nav-btn glass-light px-4 py-2 rounded-xl text-sm font-medium transition-all" data-section="meetings">Meeting Log</button>
-      <button onclick="showSection('tasks')" class="nav-btn glass-light px-4 py-2 rounded-xl text-sm font-medium transition-all" data-section="tasks">Tasks & Todos</button>
-      <button onclick="showSection('resources')" class="nav-btn glass-light px-4 py-2 rounded-xl text-sm font-medium transition-all" data-section="resources">Resources & Links</button>
-    </div>
-  </nav>
-
-  <!-- Timeline (always visible) -->
-  <div class="max-w-7xl mx-auto px-6 pt-6">
-    <div class="glass rounded-2xl p-6">
-      <h3 class="text-sm font-semibold text-ppg-cream uppercase tracking-wider mb-5" style="opacity:0.7;">Milestone Timeline</h3>
+  <!-- ====== TIMELINE (always visible) ====== -->
+  <div class="max-w-6xl mx-auto px-6 pt-6">
+    <div class="glass rounded-2xl p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-xs font-semibold text-txt-3 uppercase tracking-widest">Milestones</h3>
+        <span class="text-xs text-txt-3" id="today-label"></span>
+      </div>
       <div id="milestone-timeline"></div>
     </div>
   </div>
 
-  <!-- Main Content -->
-  <main class="max-w-7xl mx-auto px-6 py-6">
+  <!-- ====== MAIN ====== -->
+  <main class="max-w-6xl mx-auto px-6 py-6">
 
-    <!-- ==================== DASHBOARD ==================== -->
+    <!-- DASHBOARD -->
     <section id="sec-dashboard" class="section">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div class="glass rounded-2xl p-5">
-          <p class="text-xs text-ppg-gray uppercase tracking-wider mb-1">Total Tasks</p>
-          <p id="stat-total" class="text-3xl font-bold text-ppg-cream">0</p>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div class="glass-card rounded-2xl p-5">
+          <p class="text-xs text-txt-3 uppercase tracking-wider mb-1.5">Total Tasks</p>
+          <p id="stat-total" class="text-3xl font-bold text-txt-1 stat-value">0</p>
         </div>
-        <div class="glass rounded-2xl p-5">
-          <p class="text-xs text-ppg-gray uppercase tracking-wider mb-1">Completed</p>
-          <p id="stat-done" class="text-3xl font-bold text-green-400">0</p>
+        <div class="glass-card rounded-2xl p-5">
+          <p class="text-xs text-txt-3 uppercase tracking-wider mb-1.5">Completed</p>
+          <p id="stat-done" class="text-3xl font-bold text-emerald-400 stat-value">0</p>
         </div>
-        <div class="glass rounded-2xl p-5">
-          <p class="text-xs text-ppg-gray uppercase tracking-wider mb-1">Meetings Logged</p>
-          <p id="stat-meetings" class="text-3xl font-bold text-ppg-cream">0</p>
+        <div class="glass-card rounded-2xl p-5">
+          <p class="text-xs text-txt-3 uppercase tracking-wider mb-1.5">Meetings</p>
+          <p id="stat-meetings" class="text-3xl font-bold text-txt-1 stat-value">0</p>
         </div>
       </div>
-
-      <!-- Quick overview -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div class="glass rounded-2xl p-5">
-          <h3 class="text-sm font-semibold text-ppg-cream uppercase tracking-wider mb-3" style="opacity:0.7;">Recent Meetings</h3>
-          <div id="dash-meetings" class="space-y-2 text-sm text-ppg-gray">
-            <p class="italic">No meetings yet.</p>
-          </div>
+        <div class="glass-card rounded-2xl p-5">
+          <h3 class="text-xs font-semibold text-txt-3 uppercase tracking-widest mb-3">Recent Meetings</h3>
+          <div id="dash-meetings" class="space-y-2 text-sm text-txt-3"><p class="italic">No meetings yet.</p></div>
         </div>
-        <div class="glass rounded-2xl p-5">
-          <h3 class="text-sm font-semibold text-ppg-cream uppercase tracking-wider mb-3" style="opacity:0.7;">Upcoming Tasks</h3>
-          <div id="dash-tasks" class="space-y-2 text-sm text-ppg-gray">
-            <p class="italic">No tasks yet.</p>
-          </div>
+        <div class="glass-card rounded-2xl p-5">
+          <h3 class="text-xs font-semibold text-txt-3 uppercase tracking-widest mb-3">Upcoming Tasks</h3>
+          <div id="dash-tasks" class="space-y-2 text-sm text-txt-3"><p class="italic">No tasks yet.</p></div>
         </div>
       </div>
     </section>
 
-    <!-- ==================== MEETING LOG ==================== -->
+    <!-- MEETINGS -->
     <section id="sec-meetings" class="section hidden">
-      <div class="glass rounded-2xl p-6 mb-6">
-        <h2 class="text-lg font-semibold text-ppg-cream mb-4">New Meeting Entry</h2>
+      <div class="glass-card rounded-2xl p-6 mb-6">
+        <h2 class="text-base font-semibold text-txt-1 mb-5">New Meeting</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div>
-            <label class="block text-xs text-ppg-gray mb-1">Date</label>
-            <input type="date" id="mtg-date" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
+            <label class="block text-xs text-txt-3 mb-1.5">Date</label>
+            <input type="date" id="mtg-date" class="glass-input w-full px-3.5 py-2.5 text-sm">
           </div>
           <div>
-            <label class="block text-xs text-ppg-gray mb-1">Attendees</label>
-            <input type="text" id="mtg-attendees" placeholder="Mark, Rick" class="glass-input w-full rounded-xl px-3 py-2 text-sm placeholder-ppg-gray">
+            <label class="block text-xs text-txt-3 mb-1.5">Attendees</label>
+            <input type="text" id="mtg-attendees" placeholder="Mark, Rick" class="glass-input w-full px-3.5 py-2.5 text-sm">
           </div>
           <div>
-            <label class="block text-xs text-ppg-gray mb-1">Topic</label>
-            <input type="text" id="mtg-topic" placeholder="Meeting topic" class="glass-input w-full rounded-xl px-3 py-2 text-sm placeholder-ppg-gray">
+            <label class="block text-xs text-txt-3 mb-1.5">Topic</label>
+            <input type="text" id="mtg-topic" placeholder="Meeting topic" class="glass-input w-full px-3.5 py-2.5 text-sm">
           </div>
         </div>
         <div class="mb-4">
-          <label class="block text-xs text-ppg-gray mb-1">Meeting Minutes / Notes</label>
-          <textarea id="mtg-notes" rows="5" placeholder="Write your meeting minutes here..." class="glass-input w-full rounded-xl px-3 py-2 text-sm placeholder-ppg-gray resize-y"></textarea>
+          <label class="block text-xs text-txt-3 mb-1.5">Minutes / Notes</label>
+          <textarea id="mtg-notes" rows="4" placeholder="Meeting notes..." class="glass-input w-full px-3.5 py-2.5 text-sm resize-y"></textarea>
         </div>
-        <div class="mb-4">
-          <label class="block text-xs text-ppg-gray mb-1">Action Items</label>
-          <textarea id="mtg-actions" rows="3" placeholder="List action items from this meeting..." class="glass-input w-full rounded-xl px-3 py-2 text-sm placeholder-ppg-gray resize-y"></textarea>
+        <div class="mb-5">
+          <label class="block text-xs text-txt-3 mb-1.5">Action Items</label>
+          <textarea id="mtg-actions" rows="2" placeholder="Action items..." class="glass-input w-full px-3.5 py-2.5 text-sm resize-y"></textarea>
         </div>
-        <button onclick="addMeeting()" class="bg-ppg-navy hover:bg-ppg-deepnavy text-ppg-cream px-5 py-2 rounded-xl text-sm font-medium transition-colors">Save Meeting</button>
+        <button onclick="addMeeting()" class="btn-primary px-5 py-2.5 rounded-xl text-sm font-medium">Save Meeting</button>
       </div>
-
-      <div class="glass rounded-2xl p-6">
-        <h2 class="text-lg font-semibold text-ppg-cream mb-4">Meeting History</h2>
-        <div id="meeting-list" class="space-y-4">
-          <p class="text-sm text-ppg-gray italic">No meetings logged yet.</p>
-        </div>
+      <div class="glass-card rounded-2xl p-6">
+        <h2 class="text-base font-semibold text-txt-1 mb-4">Meeting History</h2>
+        <div id="meeting-list" class="space-y-3"><p class="text-sm text-txt-3 italic">No meetings logged yet.</p></div>
       </div>
     </section>
 
-    <!-- ==================== TASKS & TODOS ==================== -->
+    <!-- TASKS -->
     <section id="sec-tasks" class="section hidden">
-      <div class="glass rounded-2xl p-6 mb-6">
-        <h2 class="text-lg font-semibold text-ppg-cream mb-4">Add Task</h2>
+      <div class="glass-card rounded-2xl p-6 mb-6">
+        <h2 class="text-base font-semibold text-txt-1 mb-5">Add Task</h2>
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
           <div class="md:col-span-2">
-            <label class="block text-xs text-ppg-gray mb-1">Task</label>
-            <input type="text" id="task-title" placeholder="What needs to be done?" class="glass-input w-full rounded-xl px-3 py-2 text-sm placeholder-ppg-gray">
+            <label class="block text-xs text-txt-3 mb-1.5">Task</label>
+            <input type="text" id="task-title" placeholder="What needs to be done?" class="glass-input w-full px-3.5 py-2.5 text-sm">
           </div>
           <div>
-            <label class="block text-xs text-ppg-gray mb-1">Assignee</label>
-            <select id="task-assignee" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
-              <option value="Mark">Mark</option>
-              <option value="Rick">Rick</option>
-              <option value="Both">Both</option>
+            <label class="block text-xs text-txt-3 mb-1.5">Assignee</label>
+            <select id="task-assignee" class="glass-input w-full px-3.5 py-2.5 text-sm">
+              <option value="Mark">Mark</option><option value="Rick">Rick</option><option value="Both">Both</option>
             </select>
           </div>
           <div>
-            <label class="block text-xs text-ppg-gray mb-1">Priority</label>
-            <select id="task-priority" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
-              <option value="low">Low</option>
-              <option value="medium" selected>Medium</option>
-              <option value="high">High</option>
-              <option value="urgent">Urgent</option>
+            <label class="block text-xs text-txt-3 mb-1.5">Priority</label>
+            <select id="task-priority" class="glass-input w-full px-3.5 py-2.5 text-sm">
+              <option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="urgent">Urgent</option>
             </select>
           </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div>
-            <label class="block text-xs text-ppg-gray mb-1">Due Date</label>
-            <input type="date" id="task-due" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
+            <label class="block text-xs text-txt-3 mb-1.5">Due Date</label>
+            <input type="date" id="task-due" class="glass-input w-full px-3.5 py-2.5 text-sm">
           </div>
           <div>
-            <label class="block text-xs text-ppg-gray mb-1">Status</label>
-            <select id="task-status" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
-              <option value="todo">To Do</option>
-              <option value="in-progress">In Progress</option>
-              <option value="review">Review</option>
-              <option value="done">Done</option>
+            <label class="block text-xs text-txt-3 mb-1.5">Status</label>
+            <select id="task-status" class="glass-input w-full px-3.5 py-2.5 text-sm">
+              <option value="todo">To Do</option><option value="in-progress">In Progress</option><option value="review">Review</option><option value="done">Done</option>
             </select>
           </div>
           <div>
-            <label class="block text-xs text-ppg-gray mb-1">Category</label>
-            <input type="text" id="task-category" placeholder="e.g. Marketing, Dev, Legal" class="glass-input w-full rounded-xl px-3 py-2 text-sm placeholder-ppg-gray">
+            <label class="block text-xs text-txt-3 mb-1.5">Category</label>
+            <input type="text" id="task-category" placeholder="e.g. Marketing, Dev" class="glass-input w-full px-3.5 py-2.5 text-sm">
           </div>
         </div>
-        <div class="mb-4">
-          <label class="block text-xs text-ppg-gray mb-1">Description</label>
-          <textarea id="task-desc" rows="2" placeholder="Additional details..." class="glass-input w-full rounded-xl px-3 py-2 text-sm placeholder-ppg-gray resize-y"></textarea>
+        <div class="mb-5">
+          <label class="block text-xs text-txt-3 mb-1.5">Description</label>
+          <textarea id="task-desc" rows="2" placeholder="Details..." class="glass-input w-full px-3.5 py-2.5 text-sm resize-y"></textarea>
         </div>
-        <button onclick="addTask()" class="bg-ppg-navy hover:bg-ppg-deepnavy text-ppg-cream px-5 py-2 rounded-xl text-sm font-medium transition-colors">Add Task</button>
+        <button onclick="addTask()" class="btn-primary px-5 py-2.5 rounded-xl text-sm font-medium">Add Task</button>
       </div>
 
       <!-- Filters -->
       <div class="flex flex-wrap gap-2 mb-4">
-        <button onclick="filterTasks('all')" class="filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-ppg-gray hover:text-ppg-cream transition" data-filter="all">All</button>
-        <button onclick="filterTasks('todo')" class="filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-ppg-gray hover:text-ppg-cream transition" data-filter="todo">To Do</button>
-        <button onclick="filterTasks('in-progress')" class="filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-ppg-gray hover:text-ppg-cream transition" data-filter="in-progress">In Progress</button>
-        <button onclick="filterTasks('review')" class="filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-ppg-gray hover:text-ppg-cream transition" data-filter="review">Review</button>
-        <button onclick="filterTasks('done')" class="filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-ppg-gray hover:text-ppg-cream transition" data-filter="done">Done</button>
-        <span class="text-ppg-gray/30 mx-1">|</span>
-        <button onclick="filterTasks('Mark')" class="filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-ppg-gray hover:text-ppg-cream transition" data-filter="Mark">Mark</button>
-        <button onclick="filterTasks('Rick')" class="filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-ppg-gray hover:text-ppg-cream transition" data-filter="Rick">Rick</button>
-        <button onclick="filterTasks('Both')" class="filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-ppg-gray hover:text-ppg-cream transition" data-filter="Both">Both</button>
+        <button onclick="filterTasks('all')" class="filter-pill active text-xs px-3.5 py-1.5 rounded-full font-medium" data-filter="all">All</button>
+        <button onclick="filterTasks('todo')" class="filter-pill text-xs px-3.5 py-1.5 rounded-full font-medium" data-filter="todo">To Do</button>
+        <button onclick="filterTasks('in-progress')" class="filter-pill text-xs px-3.5 py-1.5 rounded-full font-medium" data-filter="in-progress">In Progress</button>
+        <button onclick="filterTasks('review')" class="filter-pill text-xs px-3.5 py-1.5 rounded-full font-medium" data-filter="review">Review</button>
+        <button onclick="filterTasks('done')" class="filter-pill text-xs px-3.5 py-1.5 rounded-full font-medium" data-filter="done">Done</button>
+        <div class="w-px h-5 bg-white/8 mx-1 self-center"></div>
+        <button onclick="filterTasks('Mark')" class="filter-pill text-xs px-3.5 py-1.5 rounded-full font-medium" data-filter="Mark">Mark</button>
+        <button onclick="filterTasks('Rick')" class="filter-pill text-xs px-3.5 py-1.5 rounded-full font-medium" data-filter="Rick">Rick</button>
+        <button onclick="filterTasks('Both')" class="filter-pill text-xs px-3.5 py-1.5 rounded-full font-medium" data-filter="Both">Both</button>
       </div>
 
-      <div class="glass rounded-2xl p-6">
-        <h2 class="text-lg font-semibold text-ppg-cream mb-4">Task Board</h2>
-        <div id="task-list" class="space-y-3">
-          <p class="text-sm text-ppg-gray italic">No tasks yet.</p>
-        </div>
+      <div class="glass-card rounded-2xl p-6">
+        <h2 class="text-base font-semibold text-txt-1 mb-4">Task Board</h2>
+        <div id="task-list" class="space-y-3"><p class="text-sm text-txt-3 italic">No tasks yet.</p></div>
       </div>
     </section>
 
-    <!-- ==================== RESOURCES & LINKS ==================== -->
+    <!-- RESOURCES -->
     <section id="sec-resources" class="section hidden">
-      <div class="glass rounded-2xl p-6 mb-6">
-        <h2 class="text-lg font-semibold text-ppg-cream mb-4">Add Resource / Link</h2>
+      <div class="glass-card rounded-2xl p-6 mb-6">
+        <h2 class="text-base font-semibold text-txt-1 mb-5">Add Resource</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div>
-            <label class="block text-xs text-ppg-gray mb-1">Title</label>
-            <input type="text" id="res-title" placeholder="Resource name" class="glass-input w-full rounded-xl px-3 py-2 text-sm placeholder-ppg-gray">
+            <label class="block text-xs text-txt-3 mb-1.5">Title</label>
+            <input type="text" id="res-title" placeholder="Resource name" class="glass-input w-full px-3.5 py-2.5 text-sm">
           </div>
           <div>
-            <label class="block text-xs text-ppg-gray mb-1">URL</label>
-            <input type="url" id="res-url" placeholder="https://..." class="glass-input w-full rounded-xl px-3 py-2 text-sm placeholder-ppg-gray">
+            <label class="block text-xs text-txt-3 mb-1.5">URL</label>
+            <input type="url" id="res-url" placeholder="https://..." class="glass-input w-full px-3.5 py-2.5 text-sm">
           </div>
           <div>
-            <label class="block text-xs text-ppg-gray mb-1">Category</label>
-            <select id="res-category" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
-              <option value="Data">Data</option>
-              <option value="Documents">Documents</option>
-              <option value="Tools">Tools</option>
-              <option value="Research">Research</option>
-              <option value="Legal">Legal</option>
-              <option value="Finance">Finance</option>
-              <option value="Marketing">Marketing</option>
-              <option value="Other">Other</option>
+            <label class="block text-xs text-txt-3 mb-1.5">Category</label>
+            <select id="res-category" class="glass-input w-full px-3.5 py-2.5 text-sm">
+              <option value="Data">Data</option><option value="Documents">Documents</option><option value="Tools">Tools</option>
+              <option value="Research">Research</option><option value="Legal">Legal</option><option value="Finance">Finance</option>
+              <option value="Marketing">Marketing</option><option value="Other">Other</option>
             </select>
           </div>
         </div>
-        <div class="mb-4">
-          <label class="block text-xs text-ppg-gray mb-1">Description</label>
-          <input type="text" id="res-desc" placeholder="Brief description..." class="glass-input w-full rounded-xl px-3 py-2 text-sm placeholder-ppg-gray">
+        <div class="mb-5">
+          <label class="block text-xs text-txt-3 mb-1.5">Description</label>
+          <input type="text" id="res-desc" placeholder="Brief description..." class="glass-input w-full px-3.5 py-2.5 text-sm">
         </div>
-        <button onclick="addResource()" class="bg-ppg-navy hover:bg-ppg-deepnavy text-ppg-cream px-5 py-2 rounded-xl text-sm font-medium transition-colors">Add Resource</button>
+        <button onclick="addResource()" class="btn-primary px-5 py-2.5 rounded-xl text-sm font-medium">Add Resource</button>
       </div>
 
-      <!-- Resource filter by category -->
       <div class="flex flex-wrap gap-2 mb-4" id="res-filters">
-        <button onclick="filterResources('all')" class="res-filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-ppg-gray hover:text-ppg-cream transition">All</button>
+        <button onclick="filterResources('all')" class="filter-pill active text-xs px-3.5 py-1.5 rounded-full font-medium">All</button>
       </div>
 
-      <div class="glass rounded-2xl p-6">
-        <h2 class="text-lg font-semibold text-ppg-cream mb-4">Resources Library</h2>
-        <div id="resource-list" class="space-y-3">
-          <p class="text-sm text-ppg-gray italic">No resources added yet.</p>
-        </div>
+      <div class="glass-card rounded-2xl p-6">
+        <h2 class="text-base font-semibold text-txt-1 mb-4">Resources Library</h2>
+        <div id="resource-list" class="space-y-3"><p class="text-sm text-txt-3 italic">No resources added yet.</p></div>
       </div>
     </section>
 
   </main>
 
-  <!-- Footer -->
-  <footer class="max-w-7xl mx-auto px-6 py-8 text-center text-xs text-ppg-gray/50">
+  <footer class="max-w-6xl mx-auto px-6 py-8 text-center text-xs text-txt-3/40">
     PPG Prime Performance Group &copy; 2026 &middot; Mark & Rick
   </footer>
 
   <script>
     // ===================== DATA STORE =====================
     const STORE_KEYS = { meetings: 'ppg_meetings', tasks: 'ppg_tasks', resources: 'ppg_resources' };
-
-    function load(key) {
-      try { return JSON.parse(localStorage.getItem(key)) || []; }
-      catch { return []; }
-    }
-    function save(key, data) {
-      localStorage.setItem(key, JSON.stringify(data));
-      flashSave();
-    }
+    function load(key) { try { return JSON.parse(localStorage.getItem(key)) || []; } catch { return []; } }
+    function save(key, data) { localStorage.setItem(key, JSON.stringify(data)); flashSave(); }
 
     let meetings = load(STORE_KEYS.meetings);
     let tasks = load(STORE_KEYS.tasks);
@@ -363,17 +418,14 @@
       const el = document.getElementById('saveIndicator');
       el.querySelector('span').textContent = 'Saved!';
       el.classList.add('autosave-flash');
-      setTimeout(() => {
-        el.querySelector('span').textContent = 'Autosave active';
-        el.classList.remove('autosave-flash');
-      }, 1500);
+      setTimeout(() => { el.querySelector('span').textContent = 'Autosave active'; el.classList.remove('autosave-flash'); }, 1500);
     }
 
     // ===================== NAVIGATION =====================
     function showSection(name) {
       document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
       document.getElementById('sec-' + name).classList.remove('hidden');
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
       document.querySelector(`[data-section="${name}"]`).classList.add('active');
     }
 
@@ -384,122 +436,54 @@
       const topic = document.getElementById('mtg-topic').value.trim();
       const notes = document.getElementById('mtg-notes').value.trim();
       const actions = document.getElementById('mtg-actions').value.trim();
-
       if (!topic && !notes) return alert('Please add a topic or notes.');
-
-      meetings.unshift({
-        id: Date.now(),
-        date: date || new Date().toISOString().split('T')[0],
-        attendees,
-        topic,
-        notes,
-        actions,
-        createdAt: new Date().toISOString()
-      });
+      meetings.unshift({ id: Date.now(), date: date || new Date().toISOString().split('T')[0], attendees, topic, notes, actions, createdAt: new Date().toISOString() });
       save(STORE_KEYS.meetings, meetings);
-      clearMeetingForm();
-      renderMeetings();
-      updateDashboard();
+      clearMeetingForm(); renderMeetings(); updateDashboard();
     }
-
-    function deleteMeeting(id) {
-      meetings = meetings.filter(m => m.id !== id);
-      save(STORE_KEYS.meetings, meetings);
-      renderMeetings();
-      updateDashboard();
-    }
-
+    function deleteMeeting(id) { meetings = meetings.filter(m => m.id !== id); save(STORE_KEYS.meetings, meetings); renderMeetings(); updateDashboard(); }
     function clearMeetingForm() {
       const fields = ['mtg-date','mtg-attendees','mtg-topic','mtg-notes','mtg-actions'];
-      fields.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) { el.value = ''; el.dispatchEvent(new Event('input')); }
-      });
+      fields.forEach(id => { const el = document.getElementById(id); if (el) { el.value = ''; el.dispatchEvent(new Event('input')); } });
       document.getElementById('mtg-date').value = new Date().toISOString().split('T')[0];
       clearDrafts(fields);
     }
-
     let editingMeetingId = null;
-
-    function editMeeting(id) {
-      editingMeetingId = id;
-      renderMeetings();
-    }
-
+    function editMeeting(id) { editingMeetingId = id; renderMeetings(); }
     function saveMeetingEdit(id) {
-      const m = meetings.find(m => m.id === id);
-      if (!m) return;
+      const m = meetings.find(m => m.id === id); if (!m) return;
       m.date = document.getElementById('edit-mtg-date-' + id).value;
       m.attendees = document.getElementById('edit-mtg-attendees-' + id).value.trim();
       m.topic = document.getElementById('edit-mtg-topic-' + id).value.trim();
       m.notes = document.getElementById('edit-mtg-notes-' + id).value.trim();
       m.actions = document.getElementById('edit-mtg-actions-' + id).value.trim();
-      save(STORE_KEYS.meetings, meetings);
-      editingMeetingId = null;
-      renderMeetings();
-      updateDashboard();
+      save(STORE_KEYS.meetings, meetings); editingMeetingId = null; renderMeetings(); updateDashboard();
     }
-
-    function cancelMeetingEdit() {
-      editingMeetingId = null;
-      renderMeetings();
-    }
+    function cancelMeetingEdit() { editingMeetingId = null; renderMeetings(); }
 
     function renderMeetings() {
       const container = document.getElementById('meeting-list');
-      if (meetings.length === 0) {
-        container.innerHTML = '<p class="text-sm text-ppg-gray italic">No meetings logged yet.</p>';
-        return;
-      }
-      container.innerHTML = meetings.map(m => {
+      if (meetings.length === 0) { container.innerHTML = '<p class="text-sm text-txt-3 italic">No meetings logged yet.</p>'; return; }
+      container.innerHTML = meetings.map((m, idx) => {
         if (editingMeetingId === m.id) {
-          return `
-          <div class="glass-light rounded-xl p-4 ring-1 ring-ppg-cream/20">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
-              <div>
-                <label class="block text-xs text-ppg-gray mb-1">Date</label>
-                <input type="date" id="edit-mtg-date-${m.id}" value="${m.date}" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
-              </div>
-              <div>
-                <label class="block text-xs text-ppg-gray mb-1">Attendees</label>
-                <input type="text" id="edit-mtg-attendees-${m.id}" value="${esc(m.attendees || '')}" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
-              </div>
-              <div>
-                <label class="block text-xs text-ppg-gray mb-1">Topic</label>
-                <input type="text" id="edit-mtg-topic-${m.id}" value="${esc(m.topic || '')}" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
-              </div>
+          return `<div class="glass-card rounded-xl p-5 ring-1 ring-accent/20 animate-in">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div><label class="block text-xs text-txt-3 mb-1.5">Date</label><input type="date" id="edit-mtg-date-${m.id}" value="${m.date}" class="glass-input w-full px-3.5 py-2.5 text-sm"></div>
+              <div><label class="block text-xs text-txt-3 mb-1.5">Attendees</label><input type="text" id="edit-mtg-attendees-${m.id}" value="${esc(m.attendees || '')}" class="glass-input w-full px-3.5 py-2.5 text-sm"></div>
+              <div><label class="block text-xs text-txt-3 mb-1.5">Topic</label><input type="text" id="edit-mtg-topic-${m.id}" value="${esc(m.topic || '')}" class="glass-input w-full px-3.5 py-2.5 text-sm"></div>
             </div>
-            <div class="mb-3">
-              <label class="block text-xs text-ppg-gray mb-1">Meeting Minutes / Notes</label>
-              <textarea id="edit-mtg-notes-${m.id}" rows="5" class="glass-input w-full rounded-xl px-3 py-2 text-sm resize-y">${esc(m.notes || '')}</textarea>
-            </div>
-            <div class="mb-3">
-              <label class="block text-xs text-ppg-gray mb-1">Action Items</label>
-              <textarea id="edit-mtg-actions-${m.id}" rows="3" class="glass-input w-full rounded-xl px-3 py-2 text-sm resize-y">${esc(m.actions || '')}</textarea>
-            </div>
-            <div class="flex gap-2">
-              <button onclick="saveMeetingEdit(${m.id})" class="bg-ppg-navy hover:bg-ppg-deepnavy text-ppg-cream px-4 py-1.5 rounded-xl text-sm font-medium transition-colors">Save</button>
-              <button onclick="cancelMeetingEdit()" class="glass-light hover:bg-white/10 text-ppg-gray px-4 py-1.5 rounded-xl text-sm font-medium transition-colors">Cancel</button>
-            </div>
+            <div class="mb-4"><label class="block text-xs text-txt-3 mb-1.5">Notes</label><textarea id="edit-mtg-notes-${m.id}" rows="4" class="glass-input w-full px-3.5 py-2.5 text-sm resize-y">${esc(m.notes || '')}</textarea></div>
+            <div class="mb-4"><label class="block text-xs text-txt-3 mb-1.5">Action Items</label><textarea id="edit-mtg-actions-${m.id}" rows="2" class="glass-input w-full px-3.5 py-2.5 text-sm resize-y">${esc(m.actions || '')}</textarea></div>
+            <div class="flex gap-2"><button onclick="saveMeetingEdit(${m.id})" class="btn-primary px-4 py-2 rounded-xl text-sm font-medium">Save</button><button onclick="cancelMeetingEdit()" class="btn-ghost px-4 py-2 rounded-xl text-sm font-medium">Cancel</button></div>
           </div>`;
         }
-        return `
-        <div class="glass-light rounded-xl p-4">
+        return `<div class="glass-card rounded-xl p-5 animate-in" style="animation-delay: ${idx * 40}ms">
           <div class="flex items-start justify-between mb-2">
-            <div>
-              <h3 class="font-semibold text-ppg-cream">${esc(m.topic || 'Untitled Meeting')}</h3>
-              <p class="text-xs text-ppg-gray">${m.date} &middot; ${esc(m.attendees || 'No attendees listed')}</p>
-            </div>
-            <div class="flex gap-2">
-              <button onclick="editMeeting(${m.id})" class="glass-light text-ppg-gray hover:text-ppg-cream text-sm px-3 py-1.5 rounded-lg transition">Edit</button>
-              <button onclick="deleteMeeting(${m.id})" class="glass-light text-ppg-gray hover:text-red-400 text-sm px-3 py-1.5 rounded-lg transition">Delete</button>
-            </div>
+            <div><h3 class="font-semibold text-txt-1">${esc(m.topic || 'Untitled Meeting')}</h3><p class="text-xs text-txt-3 mt-0.5">${m.date} &middot; ${esc(m.attendees || 'No attendees')}</p></div>
+            <div class="flex gap-2"><button onclick="editMeeting(${m.id})" class="btn-ghost px-3 py-1.5 rounded-lg text-xs font-medium">Edit</button><button onclick="deleteMeeting(${m.id})" class="btn-ghost btn-danger px-3 py-1.5 rounded-lg text-xs font-medium">Delete</button></div>
           </div>
-          ${m.notes ? `<div class="text-sm text-ppg-cream/70 mb-2 whitespace-pre-wrap">${esc(m.notes)}</div>` : ''}
-          ${m.actions ? `<div class="mt-2 pt-2 border-t border-white/5">
-            <p class="text-xs text-ppg-cream font-medium mb-1">Action Items</p>
-            <div class="text-sm text-ppg-cream/70 whitespace-pre-wrap">${esc(m.actions)}</div>
-          </div>` : ''}
+          ${m.notes ? `<p class="text-sm text-txt-2 mt-3 whitespace-pre-wrap leading-relaxed">${esc(m.notes)}</p>` : ''}
+          ${m.actions ? `<div class="mt-3 pt-3 border-t border-white/5"><p class="text-xs text-txt-1 font-medium mb-1">Action Items</p><p class="text-sm text-txt-2 whitespace-pre-wrap">${esc(m.actions)}</p></div>` : ''}
         </div>`;
       }).join('');
     }
@@ -508,61 +492,16 @@
     function addTask() {
       const title = document.getElementById('task-title').value.trim();
       if (!title) return alert('Please enter a task title.');
-
-      tasks.unshift({
-        id: Date.now(),
-        title,
-        assignee: document.getElementById('task-assignee').value,
-        priority: document.getElementById('task-priority').value,
-        due: document.getElementById('task-due').value,
-        status: document.getElementById('task-status').value,
-        category: document.getElementById('task-category').value.trim(),
-        description: document.getElementById('task-desc').value.trim(),
-        createdAt: new Date().toISOString()
-      });
-      save(STORE_KEYS.tasks, tasks);
-      clearTaskForm();
-      renderTasks();
-      updateDashboard();
+      tasks.unshift({ id: Date.now(), title, assignee: document.getElementById('task-assignee').value, priority: document.getElementById('task-priority').value, due: document.getElementById('task-due').value, status: document.getElementById('task-status').value, category: document.getElementById('task-category').value.trim(), description: document.getElementById('task-desc').value.trim(), createdAt: new Date().toISOString() });
+      save(STORE_KEYS.tasks, tasks); clearTaskForm(); renderTasks(); updateDashboard();
     }
-
-    function toggleTask(id) {
-      const t = tasks.find(t => t.id === id);
-      if (t) {
-        t.status = t.status === 'done' ? 'todo' : 'done';
-        save(STORE_KEYS.tasks, tasks);
-        renderTasks();
-        updateDashboard();
-      }
-    }
-
-    function updateTaskStatus(id, status) {
-      const t = tasks.find(t => t.id === id);
-      if (t) {
-        t.status = status;
-        save(STORE_KEYS.tasks, tasks);
-        renderTasks();
-        updateDashboard();
-      }
-    }
-
-    function deleteTask(id) {
-      tasks = tasks.filter(t => t.id !== id);
-      save(STORE_KEYS.tasks, tasks);
-      renderTasks();
-      updateDashboard();
-    }
-
+    function toggleTask(id) { const t = tasks.find(t => t.id === id); if (t) { t.status = t.status === 'done' ? 'todo' : 'done'; save(STORE_KEYS.tasks, tasks); renderTasks(); updateDashboard(); } }
+    function updateTaskStatus(id, status) { const t = tasks.find(t => t.id === id); if (t) { t.status = status; save(STORE_KEYS.tasks, tasks); renderTasks(); updateDashboard(); } }
+    function deleteTask(id) { tasks = tasks.filter(t => t.id !== id); save(STORE_KEYS.tasks, tasks); renderTasks(); updateDashboard(); }
     let editingTaskId = null;
-
-    function editTask(id) {
-      editingTaskId = id;
-      renderTasks();
-    }
-
+    function editTask(id) { editingTaskId = id; renderTasks(); }
     function saveTaskEdit(id) {
-      const t = tasks.find(t => t.id === id);
-      if (!t) return;
+      const t = tasks.find(t => t.id === id); if (!t) return;
       t.title = document.getElementById('edit-task-title-' + id).value.trim();
       t.assignee = document.getElementById('edit-task-assignee-' + id).value;
       t.priority = document.getElementById('edit-task-priority-' + id).value;
@@ -571,65 +510,34 @@
       t.category = document.getElementById('edit-task-category-' + id).value.trim();
       t.description = document.getElementById('edit-task-desc-' + id).value.trim();
       t.results = document.getElementById('edit-task-results-' + id).value.trim();
-      save(STORE_KEYS.tasks, tasks);
-      editingTaskId = null;
-      renderTasks();
-      updateDashboard();
+      save(STORE_KEYS.tasks, tasks); editingTaskId = null; renderTasks(); updateDashboard();
     }
-
-    function cancelTaskEdit() {
-      editingTaskId = null;
-      renderTasks();
-    }
-
+    function cancelTaskEdit() { editingTaskId = null; renderTasks(); }
     function clearTaskForm() {
-      const allFields = ['task-title','task-desc','task-category','task-due','task-priority','task-status','task-assignee'];
-      allFields.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) { el.value = ''; el.dispatchEvent(new Event('input')); }
-      });
-      document.getElementById('task-priority').value = 'medium';
-      document.getElementById('task-status').value = 'todo';
-      document.getElementById('task-assignee').value = 'Mark';
-      clearDrafts(allFields);
+      ['task-title','task-desc','task-category','task-due','task-priority','task-status','task-assignee'].forEach(id => { const el = document.getElementById(id); if (el) { el.value = ''; el.dispatchEvent(new Event('input')); } });
+      document.getElementById('task-priority').value = 'medium'; document.getElementById('task-status').value = 'todo'; document.getElementById('task-assignee').value = 'Mark';
+      clearDrafts(['task-title','task-desc','task-category','task-due','task-priority','task-status','task-assignee']);
     }
-
     function filterTasks(filter) {
       currentFilter = filter;
+      document.querySelectorAll('[data-filter]').forEach(b => b.classList.toggle('active', b.dataset.filter === filter));
       renderTasks();
     }
 
-    const priorityColors = { urgent: 'text-red-400', high: 'text-orange-400', medium: 'text-ppg-cream', low: 'text-ppg-gray' };
+    const priorityColors = { urgent: 'text-red-400', high: 'text-orange-400', medium: 'text-txt-2', low: 'text-txt-3' };
+    const priorityDot = { urgent: 'bg-red-400', high: 'bg-orange-400', medium: 'bg-txt-3', low: 'bg-txt-3/40' };
     const priorityWeight = { urgent: 0, high: 1, medium: 2, low: 3 };
-    const statusBadge = { todo: 'bg-ppg-gray/30', 'in-progress': 'bg-ppg-navy', review: 'bg-purple-800/60', done: 'bg-green-800/60' };
+    const statusColors = { todo: 'bg-white/8 text-txt-2', 'in-progress': 'bg-accent/15 text-accent', review: 'bg-amber-500/15 text-amber-400', done: 'bg-emerald-500/15 text-emerald-400' };
+    const statusLabels = { todo: 'To Do', 'in-progress': 'In Progress', review: 'Review', done: 'Done' };
 
-    function isDueSoon(due) {
-      if (!due) return false;
-      const now = new Date();
-      now.setHours(0,0,0,0);
-      const d = new Date(due + 'T00:00:00');
-      const diff = (d - now) / (1000 * 60 * 60 * 24);
-      return diff >= 0 && diff <= 5;
-    }
-
-    function isOverdue(due) {
-      if (!due) return false;
-      const now = new Date();
-      now.setHours(0,0,0,0);
-      const d = new Date(due + 'T00:00:00');
-      return d < now;
-    }
-
+    function isDueSoon(due) { if (!due) return false; const now = new Date(); now.setHours(0,0,0,0); const d = new Date(due + 'T00:00:00'); const diff = (d - now) / 86400000; return diff >= 0 && diff <= 5; }
+    function isOverdue(due) { if (!due) return false; const now = new Date(); now.setHours(0,0,0,0); return new Date(due + 'T00:00:00') < now; }
     function sortTasks(arr) {
       return [...arr].sort((a, b) => {
-        // Done tasks go to the bottom
         if (a.status === 'done' && b.status !== 'done') return 1;
         if (a.status !== 'done' && b.status === 'done') return -1;
-        // Sort by due date (no date goes after dated tasks)
-        const da = a.due || '9999-12-31';
-        const db = b.due || '9999-12-31';
+        const da = a.due || '9999-12-31', db = b.due || '9999-12-31';
         if (da !== db) return da.localeCompare(db);
-        // Then by priority (urgent first)
         return (priorityWeight[a.priority] || 2) - (priorityWeight[b.priority] || 2);
       });
     }
@@ -637,100 +545,53 @@
     function renderTasks() {
       const container = document.getElementById('task-list');
       let filtered = tasks;
-      if (currentFilter !== 'all') {
-        filtered = tasks.filter(t => t.status === currentFilter || t.assignee === currentFilter);
-      }
-
-      if (filtered.length === 0) {
-        container.innerHTML = '<p class="text-sm text-ppg-gray italic">No tasks match this filter.</p>';
-        return;
-      }
-
+      if (currentFilter !== 'all') filtered = tasks.filter(t => t.status === currentFilter || t.assignee === currentFilter);
+      if (filtered.length === 0) { container.innerHTML = '<p class="text-sm text-txt-3 italic">No tasks match this filter.</p>'; return; }
       filtered = sortTasks(filtered);
 
-      container.innerHTML = filtered.map(t => {
+      container.innerHTML = filtered.map((t, idx) => {
         const dueSoon = t.status !== 'done' && isDueSoon(t.due);
         const overdue = t.status !== 'done' && isOverdue(t.due);
         if (editingTaskId === t.id) {
-          return `
-          <div class="glass-light rounded-xl p-4 ring-1 ring-ppg-cream/20">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
-              <div class="md:col-span-2">
-                <label class="block text-xs text-ppg-gray mb-1">Task</label>
-                <input type="text" id="edit-task-title-${t.id}" value="${esc(t.title || '')}" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
-              </div>
-              <div>
-                <label class="block text-xs text-ppg-gray mb-1">Assignee</label>
-                <select id="edit-task-assignee-${t.id}" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
-                  ${['Mark','Rick','Both'].map(a => `<option value="${a}" ${t.assignee === a ? 'selected' : ''}>${a}</option>`).join('')}
-                </select>
-              </div>
-              <div>
-                <label class="block text-xs text-ppg-gray mb-1">Priority</label>
-                <select id="edit-task-priority-${t.id}" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
-                  ${['low','medium','high','urgent'].map(p => `<option value="${p}" ${t.priority === p ? 'selected' : ''}>${p}</option>`).join('')}
-                </select>
-              </div>
+          return `<div class="glass-card rounded-xl p-5 ring-1 ring-accent/20 animate-in">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+              <div class="md:col-span-2"><label class="block text-xs text-txt-3 mb-1.5">Task</label><input type="text" id="edit-task-title-${t.id}" value="${esc(t.title || '')}" class="glass-input w-full px-3.5 py-2.5 text-sm"></div>
+              <div><label class="block text-xs text-txt-3 mb-1.5">Assignee</label><select id="edit-task-assignee-${t.id}" class="glass-input w-full px-3.5 py-2.5 text-sm">${['Mark','Rick','Both'].map(a => `<option value="${a}" ${t.assignee === a ? 'selected' : ''}>${a}</option>`).join('')}</select></div>
+              <div><label class="block text-xs text-txt-3 mb-1.5">Priority</label><select id="edit-task-priority-${t.id}" class="glass-input w-full px-3.5 py-2.5 text-sm">${['low','medium','high','urgent'].map(p => `<option value="${p}" ${t.priority === p ? 'selected' : ''}>${p}</option>`).join('')}</select></div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
-              <div>
-                <label class="block text-xs text-ppg-gray mb-1">Due Date</label>
-                <input type="date" id="edit-task-due-${t.id}" value="${t.due || ''}" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
-              </div>
-              <div>
-                <label class="block text-xs text-ppg-gray mb-1">Status</label>
-                <select id="edit-task-status-${t.id}" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
-                  ${['todo','in-progress','review','done'].map(s => `<option value="${s}" ${t.status === s ? 'selected' : ''}>${s}</option>`).join('')}
-                </select>
-              </div>
-              <div>
-                <label class="block text-xs text-ppg-gray mb-1">Category</label>
-                <input type="text" id="edit-task-category-${t.id}" value="${esc(t.category || '')}" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
-              </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div><label class="block text-xs text-txt-3 mb-1.5">Due Date</label><input type="date" id="edit-task-due-${t.id}" value="${t.due || ''}" class="glass-input w-full px-3.5 py-2.5 text-sm"></div>
+              <div><label class="block text-xs text-txt-3 mb-1.5">Status</label><select id="edit-task-status-${t.id}" class="glass-input w-full px-3.5 py-2.5 text-sm">${['todo','in-progress','review','done'].map(s => `<option value="${s}" ${t.status === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div>
+              <div><label class="block text-xs text-txt-3 mb-1.5">Category</label><input type="text" id="edit-task-category-${t.id}" value="${esc(t.category || '')}" class="glass-input w-full px-3.5 py-2.5 text-sm"></div>
             </div>
-            <div class="mb-3">
-              <label class="block text-xs text-ppg-gray mb-1">Description</label>
-              <textarea id="edit-task-desc-${t.id}" rows="2" class="glass-input w-full rounded-xl px-3 py-2 text-sm resize-y">${esc(t.description || '')}</textarea>
-            </div>
-            <div class="mb-3">
-              <label class="block text-xs text-ppg-gray mb-1">Results / Outcome</label>
-              <textarea id="edit-task-results-${t.id}" rows="3" placeholder="Record results, findings, or outcome before closing..." class="glass-input w-full rounded-xl px-3 py-2 text-sm placeholder-ppg-gray resize-y">${esc(t.results || '')}</textarea>
-            </div>
-            <div class="flex gap-2">
-              <button onclick="saveTaskEdit(${t.id})" class="bg-ppg-navy hover:bg-ppg-deepnavy text-ppg-cream px-4 py-1.5 rounded-xl text-sm font-medium transition-colors">Save</button>
-              <button onclick="cancelTaskEdit()" class="glass-light hover:bg-white/10 text-ppg-gray px-4 py-1.5 rounded-xl text-sm font-medium transition-colors">Cancel</button>
-            </div>
+            <div class="mb-4"><label class="block text-xs text-txt-3 mb-1.5">Description</label><textarea id="edit-task-desc-${t.id}" rows="2" class="glass-input w-full px-3.5 py-2.5 text-sm resize-y">${esc(t.description || '')}</textarea></div>
+            <div class="mb-4"><label class="block text-xs text-txt-3 mb-1.5">Results / Outcome</label><textarea id="edit-task-results-${t.id}" rows="3" placeholder="Record results before closing..." class="glass-input w-full px-3.5 py-2.5 text-sm resize-y">${esc(t.results || '')}</textarea></div>
+            <div class="flex gap-2"><button onclick="saveTaskEdit(${t.id})" class="btn-primary px-4 py-2 rounded-xl text-sm font-medium">Save</button><button onclick="cancelTaskEdit()" class="btn-ghost px-4 py-2 rounded-xl text-sm font-medium">Cancel</button></div>
           </div>`;
         }
-        return `
-        <div class="glass-light rounded-xl p-4 ${t.status === 'done' ? 'task-done' : ''} ${overdue ? 'ring-2 ring-red-500/40 task-overdue' : dueSoon ? 'ring-2 ring-amber-500/40 task-due-soon' : ''}">
-          <div class="flex items-start justify-between gap-3">
-            <div class="flex items-start gap-3 flex-1">
-              <input type="checkbox" ${t.status === 'done' ? 'checked' : ''} onchange="toggleTask(${t.id})" class="mt-1 accent-ppg-cream">
-              <div class="flex-1">
-                <h3 class="font-medium text-ppg-cream text-sm">${esc(t.title)}</h3>
-                <div class="flex flex-wrap items-center gap-2 mt-1">
-                  <span class="text-xs ${priorityColors[t.priority]}">${t.priority}</span>
-                  <span class="text-xs px-1.5 py-0.5 rounded ${statusBadge[t.status]} text-ppg-cream">${t.status}</span>
-                  <span class="text-xs text-ppg-gray">${esc(t.assignee)}</span>
-                  ${t.due ? `<span class="text-xs ${overdue ? 'text-red-400 font-semibold' : dueSoon ? 'text-amber-400 font-semibold' : 'text-ppg-gray'}">${t.due}</span>` : ''}
-                  ${overdue ? '<span class="due-soon-badge text-sm px-2.5 py-1 rounded-lg bg-red-500/25 text-red-400 font-semibold">⚠ Overdue</span>' : ''}
-                  ${dueSoon ? '<span class="due-soon-badge text-sm px-2.5 py-1 rounded-lg bg-amber-500/25 text-amber-400 font-semibold">⏰ Due Soon</span>' : ''}
-                  ${t.category ? `<span class="text-xs text-ppg-cream/60">${esc(t.category)}</span>` : ''}
-                </div>
-                ${t.description ? `<p class="text-xs text-ppg-gray mt-1">${esc(t.description)}</p>` : ''}
-                ${t.results ? `<div class="mt-2 pt-2 border-t border-white/5">
-                  <p class="text-xs text-ppg-cream font-medium mb-1">Results</p>
-                  <p class="text-xs text-ppg-cream/70 whitespace-pre-wrap">${esc(t.results)}</p>
-                </div>` : ''}
+        return `<div class="glass-card rounded-xl p-4 ${t.status === 'done' ? 'task-done' : ''} ${overdue ? 'task-overdue' : dueSoon ? 'task-due-soon' : ''} animate-in" style="animation-delay: ${idx * 30}ms">
+          <div class="flex items-start gap-3">
+            <input type="checkbox" ${t.status === 'done' ? 'checked' : ''} onchange="toggleTask(${t.id})" class="mt-0.5 shrink-0">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <h3 class="font-medium text-txt-1 text-sm">${esc(t.title)}</h3>
+                ${overdue ? '<span class="due-soon-badge text-xs px-2 py-0.5 rounded-full bg-red-500/15 text-red-400 font-medium">Overdue</span>' : ''}
+                ${dueSoon ? '<span class="due-soon-badge text-xs px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 font-medium">Due Soon</span>' : ''}
               </div>
+              <div class="flex flex-wrap items-center gap-2 mt-1.5">
+                <span class="inline-flex items-center gap-1 text-xs"><span class="w-1.5 h-1.5 rounded-full ${priorityDot[t.priority]}"></span>${t.priority}</span>
+                <span class="text-xs px-2 py-0.5 rounded-full ${statusColors[t.status]}">${statusLabels[t.status]}</span>
+                <span class="text-xs text-txt-3">${esc(t.assignee)}</span>
+                ${t.due ? `<span class="text-xs ${overdue ? 'text-red-400' : dueSoon ? 'text-amber-400' : 'text-txt-3'}">${t.due}</span>` : ''}
+                ${t.category ? `<span class="text-xs text-txt-3/60">${esc(t.category)}</span>` : ''}
+              </div>
+              ${t.description ? `<p class="text-xs text-txt-3 mt-2 leading-relaxed">${esc(t.description)}</p>` : ''}
+              ${t.results ? `<div class="mt-2.5 pt-2.5 border-t border-white/5"><p class="text-xs text-accent font-medium mb-0.5">Results</p><p class="text-xs text-txt-2 whitespace-pre-wrap">${esc(t.results)}</p></div>` : ''}
             </div>
-            <div class="flex items-center gap-2 shrink-0">
-              <select onchange="updateTaskStatus(${t.id}, this.value)" class="glass-input rounded-lg px-2 py-1 text-xs text-ppg-cream">
-                ${['todo','in-progress','review','done'].map(s => `<option value="${s}" ${t.status === s ? 'selected' : ''}>${s}</option>`).join('')}
-              </select>
-              <button onclick="editTask(${t.id})" class="glass-light text-ppg-gray hover:text-ppg-cream text-sm px-3 py-1.5 rounded-lg transition">Edit</button>
-              <button onclick="deleteTask(${t.id})" class="glass-light text-ppg-gray hover:text-red-400 text-sm px-3 py-1.5 rounded-lg transition">Delete</button>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <select onchange="updateTaskStatus(${t.id}, this.value)" class="glass-input rounded-lg px-2 py-1 text-xs">${['todo','in-progress','review','done'].map(s => `<option value="${s}" ${t.status === s ? 'selected' : ''}>${statusLabels[s]}</option>`).join('')}</select>
+              <button onclick="editTask(${t.id})" class="btn-ghost px-2.5 py-1 rounded-lg text-xs font-medium">Edit</button>
+              <button onclick="deleteTask(${t.id})" class="btn-ghost btn-danger px-2.5 py-1 rounded-lg text-xs font-medium">Del</button>
             </div>
           </div>
         </div>`;
@@ -742,171 +603,74 @@
       const title = document.getElementById('res-title').value.trim();
       const url = document.getElementById('res-url').value.trim();
       if (!title && !url) return alert('Please add a title or URL.');
-
-      resources.unshift({
-        id: Date.now(),
-        title,
-        url,
-        category: document.getElementById('res-category').value,
-        description: document.getElementById('res-desc').value.trim(),
-        createdAt: new Date().toISOString()
-      });
-      save(STORE_KEYS.resources, resources);
-      clearResourceForm();
-      renderResources();
-      renderResourceFilters();
+      resources.unshift({ id: Date.now(), title, url, category: document.getElementById('res-category').value, description: document.getElementById('res-desc').value.trim(), createdAt: new Date().toISOString() });
+      save(STORE_KEYS.resources, resources); clearResourceForm(); renderResources(); renderResourceFilters();
     }
-
-    function deleteResource(id) {
-      resources = resources.filter(r => r.id !== id);
-      save(STORE_KEYS.resources, resources);
-      renderResources();
-      renderResourceFilters();
-    }
-
+    function deleteResource(id) { resources = resources.filter(r => r.id !== id); save(STORE_KEYS.resources, resources); renderResources(); renderResourceFilters(); }
     function clearResourceForm() {
-      const allFields = ['res-title','res-url','res-desc','res-category'];
-      allFields.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) { el.value = ''; el.dispatchEvent(new Event('input')); }
-      });
-      document.getElementById('res-category').value = 'Data';
-      clearDrafts(allFields);
+      ['res-title','res-url','res-desc','res-category'].forEach(id => { const el = document.getElementById(id); if (el) { el.value = ''; el.dispatchEvent(new Event('input')); } });
+      document.getElementById('res-category').value = 'Data'; clearDrafts(['res-title','res-url','res-desc','res-category']);
     }
-
-    function filterResources(cat) {
-      currentResFilter = cat;
-      renderResources();
-    }
-
+    function filterResources(cat) { currentResFilter = cat; renderResources(); }
     function renderResourceFilters() {
       const cats = [...new Set(resources.map(r => r.category))];
-      const container = document.getElementById('res-filters');
-      container.innerHTML = `<button onclick="filterResources('all')" class="res-filter-btn text-xs glass-light px-3 py-1.5 rounded-lg text-ppg-gray hover:text-ppg-cream transition">All</button>` +
-        cats.map(c => {
-          const cc = catColor(c);
-          return `<button onclick="filterResources('${c}')" class="res-filter-btn text-xs px-3 py-1.5 rounded-lg ${cc.bg} ${cc.text} hover:opacity-80 transition">${esc(c)}</button>`;
-        }).join('');
+      document.getElementById('res-filters').innerHTML = `<button onclick="filterResources('all')" class="filter-pill ${currentResFilter === 'all' ? 'active' : ''} text-xs px-3.5 py-1.5 rounded-full font-medium">All</button>` +
+        cats.map(c => { const cc = catColor(c); return `<button onclick="filterResources('${c}')" class="filter-pill ${currentResFilter === c ? 'active' : ''} text-xs px-3.5 py-1.5 rounded-full font-medium">${esc(c)}</button>`; }).join('');
     }
-
     let editingResourceId = null;
-
-    function editResource(id) {
-      editingResourceId = id;
-      renderResources();
-    }
-
+    function editResource(id) { editingResourceId = id; renderResources(); }
     function saveResourceEdit(id) {
-      const r = resources.find(r => r.id === id);
-      if (!r) return;
+      const r = resources.find(r => r.id === id); if (!r) return;
       r.title = document.getElementById('edit-res-title-' + id).value.trim();
       r.url = document.getElementById('edit-res-url-' + id).value.trim();
       r.category = document.getElementById('edit-res-category-' + id).value;
       r.description = document.getElementById('edit-res-desc-' + id).value.trim();
-      save(STORE_KEYS.resources, resources);
-      editingResourceId = null;
-      renderResources();
-      renderResourceFilters();
+      save(STORE_KEYS.resources, resources); editingResourceId = null; renderResources(); renderResourceFilters();
     }
-
-    function cancelResourceEdit() {
-      editingResourceId = null;
-      renderResources();
-    }
-
+    function cancelResourceEdit() { editingResourceId = null; renderResources(); }
     const resCategoryOptions = ['Data','Documents','Tools','Research','Legal','Finance','Marketing','Other'];
-
     const categoryColors = {
-      Data:      { bg: 'bg-cyan-500/15',    text: 'text-cyan-400',    border: 'border-cyan-500/20' },
-      Documents: { bg: 'bg-amber-500/15',   text: 'text-amber-400',   border: 'border-amber-500/20' },
-      Tools:     { bg: 'bg-green-500/15',   text: 'text-green-400',   border: 'border-green-500/20' },
-      Research:  { bg: 'bg-purple-500/15',  text: 'text-purple-400',  border: 'border-purple-500/20' },
-      Legal:     { bg: 'bg-red-500/15',     text: 'text-red-400',     border: 'border-red-500/20' },
-      Finance:   { bg: 'bg-emerald-500/15', text: 'text-emerald-400', border: 'border-emerald-500/20' },
-      Marketing: { bg: 'bg-pink-500/15',    text: 'text-pink-400',    border: 'border-pink-500/20' },
-      Other:     { bg: 'bg-slate-500/15',   text: 'text-slate-400',   border: 'border-slate-500/20' },
+      Data: { bg: 'bg-cyan-500/12', text: 'text-cyan-400', border: 'border-cyan-500/15' },
+      Documents: { bg: 'bg-amber-500/12', text: 'text-amber-400', border: 'border-amber-500/15' },
+      Tools: { bg: 'bg-emerald-500/12', text: 'text-emerald-400', border: 'border-emerald-500/15' },
+      Research: { bg: 'bg-violet-500/12', text: 'text-violet-400', border: 'border-violet-500/15' },
+      Legal: { bg: 'bg-red-500/12', text: 'text-red-400', border: 'border-red-500/15' },
+      Finance: { bg: 'bg-emerald-500/12', text: 'text-emerald-400', border: 'border-emerald-500/15' },
+      Marketing: { bg: 'bg-pink-500/12', text: 'text-pink-400', border: 'border-pink-500/15' },
+      Other: { bg: 'bg-slate-500/12', text: 'text-slate-400', border: 'border-slate-500/15' },
     };
-
-    function catColor(cat) {
-      return categoryColors[cat] || categoryColors['Other'];
-    }
+    function catColor(cat) { return categoryColors[cat] || categoryColors['Other']; }
 
     function renderResources() {
       const container = document.getElementById('resource-list');
       let filtered = currentResFilter === 'all' ? resources : resources.filter(r => r.category === currentResFilter);
-
-      if (filtered.length === 0) {
-        container.innerHTML = '<p class="text-sm text-ppg-gray italic">No resources added yet.</p>';
-        return;
-      }
-
-      // Group by category
+      if (filtered.length === 0) { container.innerHTML = '<p class="text-sm text-txt-3 italic">No resources added yet.</p>'; return; }
       const grouped = {};
-      filtered.forEach(r => {
-        if (!grouped[r.category]) grouped[r.category] = [];
-        grouped[r.category].push(r);
-      });
-
+      filtered.forEach(r => { if (!grouped[r.category]) grouped[r.category] = []; grouped[r.category].push(r); });
       container.innerHTML = Object.keys(grouped).map(cat => {
         const cc = catColor(cat);
-        const items = grouped[cat].map(r => {
+        const items = grouped[cat].map((r, idx) => {
           if (editingResourceId === r.id) {
-            return `
-            <div class="glass-light rounded-xl p-4 ring-1 ring-ppg-cream/20">
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
-                <div>
-                  <label class="block text-xs text-ppg-gray mb-1">Title</label>
-                  <input type="text" id="edit-res-title-${r.id}" value="${esc(r.title || '')}" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
-                </div>
-                <div>
-                  <label class="block text-xs text-ppg-gray mb-1">URL</label>
-                  <input type="url" id="edit-res-url-${r.id}" value="${esc(r.url || '')}" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
-                </div>
-                <div>
-                  <label class="block text-xs text-ppg-gray mb-1">Category</label>
-                  <select id="edit-res-category-${r.id}" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
-                    ${resCategoryOptions.map(c => `<option value="${c}" ${r.category === c ? 'selected' : ''}>${c}</option>`).join('')}
-                  </select>
-                </div>
+            return `<div class="glass-card rounded-xl p-5 ring-1 ring-accent/20 animate-in">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div><label class="block text-xs text-txt-3 mb-1.5">Title</label><input type="text" id="edit-res-title-${r.id}" value="${esc(r.title || '')}" class="glass-input w-full px-3.5 py-2.5 text-sm"></div>
+                <div><label class="block text-xs text-txt-3 mb-1.5">URL</label><input type="url" id="edit-res-url-${r.id}" value="${esc(r.url || '')}" class="glass-input w-full px-3.5 py-2.5 text-sm"></div>
+                <div><label class="block text-xs text-txt-3 mb-1.5">Category</label><select id="edit-res-category-${r.id}" class="glass-input w-full px-3.5 py-2.5 text-sm">${resCategoryOptions.map(c => `<option value="${c}" ${r.category === c ? 'selected' : ''}>${c}</option>`).join('')}</select></div>
               </div>
-              <div class="mb-3">
-                <label class="block text-xs text-ppg-gray mb-1">Description</label>
-                <input type="text" id="edit-res-desc-${r.id}" value="${esc(r.description || '')}" class="glass-input w-full rounded-xl px-3 py-2 text-sm">
-              </div>
-              <div class="flex gap-2">
-                <button onclick="saveResourceEdit(${r.id})" class="bg-ppg-navy hover:bg-ppg-deepnavy text-ppg-cream px-4 py-1.5 rounded-xl text-sm font-medium transition-colors">Save</button>
-                <button onclick="cancelResourceEdit()" class="glass-light hover:bg-white/10 text-ppg-gray px-4 py-1.5 rounded-xl text-sm font-medium transition-colors">Cancel</button>
-              </div>
+              <div class="mb-4"><label class="block text-xs text-txt-3 mb-1.5">Description</label><input type="text" id="edit-res-desc-${r.id}" value="${esc(r.description || '')}" class="glass-input w-full px-3.5 py-2.5 text-sm"></div>
+              <div class="flex gap-2"><button onclick="saveResourceEdit(${r.id})" class="btn-primary px-4 py-2 rounded-xl text-sm font-medium">Save</button><button onclick="cancelResourceEdit()" class="btn-ghost px-4 py-2 rounded-xl text-sm font-medium">Cancel</button></div>
             </div>`;
           }
-          return `
-          <div class="glass-light rounded-xl p-4 flex items-start justify-between gap-3">
-            <div class="flex-1">
-              <div class="flex items-center gap-2">
-                <span class="text-xs px-2 py-0.5 rounded-lg ${cc.bg} ${cc.text}">${esc(r.category)}</span>
-                <h3 class="font-medium text-ppg-cream text-sm">${esc(r.title || 'Untitled')}</h3>
-              </div>
+          return `<div class="glass-card rounded-xl p-4 flex items-start justify-between gap-3 animate-in" style="animation-delay: ${idx * 30}ms">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2"><span class="text-xs px-2 py-0.5 rounded-full ${cc.bg} ${cc.text} font-medium">${esc(r.category)}</span><h3 class="font-medium text-txt-1 text-sm truncate">${esc(r.title || 'Untitled')}</h3></div>
               ${r.url ? `<a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer" class="text-xs ${cc.text} hover:underline mt-1 block truncate">${esc(r.url)}</a>` : ''}
-              ${r.description ? `<p class="text-xs text-ppg-gray mt-1">${esc(r.description)}</p>` : ''}
+              ${r.description ? `<p class="text-xs text-txt-3 mt-1">${esc(r.description)}</p>` : ''}
             </div>
-            <div class="flex gap-2 shrink-0">
-              <button onclick="editResource(${r.id})" class="glass-light text-ppg-gray hover:text-ppg-cream text-sm px-3 py-1.5 rounded-lg transition">Edit</button>
-              <button onclick="deleteResource(${r.id})" class="glass-light text-ppg-gray hover:text-red-400 text-sm px-3 py-1.5 rounded-lg transition">Delete</button>
-            </div>
+            <div class="flex gap-1.5 shrink-0"><button onclick="editResource(${r.id})" class="btn-ghost px-2.5 py-1 rounded-lg text-xs font-medium">Edit</button><button onclick="deleteResource(${r.id})" class="btn-ghost btn-danger px-2.5 py-1 rounded-lg text-xs font-medium">Del</button></div>
           </div>`;
         }).join('');
-
-        return `
-        <div class="mb-5">
-          <div class="flex items-center gap-2 mb-3">
-            <div class="w-2 h-2 rounded-full ${cc.bg} ${cc.text}" style="background: currentColor;"></div>
-            <h3 class="text-sm font-semibold ${cc.text} uppercase tracking-wider">${esc(cat)}</h3>
-            <span class="text-xs text-ppg-gray">(${grouped[cat].length})</span>
-          </div>
-          <div class="space-y-3 pl-4 border-l ${cc.border}">
-            ${items}
-          </div>
-        </div>`;
+        return `<div class="mb-6"><div class="flex items-center gap-2 mb-3"><div class="w-2 h-2 rounded-full ${cc.text}" style="background:currentColor"></div><h3 class="text-xs font-semibold ${cc.text} uppercase tracking-widest">${esc(cat)}</h3><span class="text-xs text-txt-3">${grouped[cat].length}</span></div><div class="space-y-2.5 pl-4 border-l ${cc.border}">${items}</div></div>`;
       }).join('');
     }
 
@@ -915,80 +679,27 @@
       document.getElementById('stat-total').textContent = tasks.length;
       document.getElementById('stat-done').textContent = tasks.filter(t => t.status === 'done').length;
       document.getElementById('stat-meetings').textContent = meetings.length;
-
-      // Recent meetings
       const dm = document.getElementById('dash-meetings');
       const recentMtg = meetings.slice(0, 3);
-      dm.innerHTML = recentMtg.length === 0
-        ? '<p class="italic">No meetings yet.</p>'
-        : recentMtg.map(m => `<div class="glass-light rounded-lg p-2 cursor-pointer" onclick="showSection('meetings')">
-            <span class="text-ppg-cream text-xs font-medium">${esc(m.topic || 'Untitled')}</span>
-            <span class="text-ppg-gray text-xs ml-2">${m.date}</span>
-          </div>`).join('');
-
-      // Upcoming tasks
+      dm.innerHTML = recentMtg.length === 0 ? '<p class="italic">No meetings yet.</p>'
+        : recentMtg.map(m => `<div class="glass-card rounded-lg p-3 cursor-pointer" onclick="showSection('meetings')"><span class="text-txt-1 text-sm font-medium">${esc(m.topic || 'Untitled')}</span><span class="text-txt-3 text-xs ml-2">${m.date}</span></div>`).join('');
       const dt = document.getElementById('dash-tasks');
       const upcoming = tasks.filter(t => t.status !== 'done').slice(0, 5);
-      dt.innerHTML = upcoming.length === 0
-        ? '<p class="italic">No open tasks.</p>'
-        : upcoming.map(t => `<div class="glass-light rounded-lg p-2 cursor-pointer" onclick="showSection('tasks')">
-            <span class="text-ppg-cream text-xs font-medium">${esc(t.title)}</span>
-            <span class="text-xs ${priorityColors[t.priority]} ml-2">${t.priority}</span>
-            <span class="text-ppg-gray text-xs ml-2">${esc(t.assignee)}</span>
-          </div>`).join('');
+      dt.innerHTML = upcoming.length === 0 ? '<p class="italic">No open tasks.</p>'
+        : upcoming.map(t => `<div class="glass-card rounded-lg p-3 cursor-pointer" onclick="showSection('tasks')"><div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full ${priorityDot[t.priority]}"></span><span class="text-txt-1 text-sm font-medium">${esc(t.title)}</span><span class="text-txt-3 text-xs ml-auto">${esc(t.assignee)}</span></div></div>`).join('');
     }
 
     // ===================== UTILS =====================
-    function esc(str) {
-      const d = document.createElement('div');
-      d.textContent = str;
-      return d.innerHTML;
-    }
-
-    // ===================== CLEAR DRAFTS HELPER =====================
-    function clearDrafts(fields) {
-      const draftKey = 'ppg_drafts';
-      try {
-        const d = JSON.parse(localStorage.getItem(draftKey) || '{}');
-        fields.forEach(id => { delete d[id]; });
-        localStorage.setItem(draftKey, JSON.stringify(d));
-      } catch {
-        localStorage.removeItem('ppg_drafts');
-      }
-    }
+    function esc(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
+    function clearDrafts(fields) { try { const d = JSON.parse(localStorage.getItem('ppg_drafts') || '{}'); fields.forEach(id => { delete d[id]; }); localStorage.setItem('ppg_drafts', JSON.stringify(d)); } catch { localStorage.removeItem('ppg_drafts'); } }
 
     // ===================== AUTOSAVE FORM DRAFTS =====================
     function setupAutosaveDrafts() {
       const draftKey = 'ppg_drafts';
-      const fields = [
-        'mtg-date','mtg-attendees','mtg-topic','mtg-notes','mtg-actions',
-        'task-title','task-assignee','task-priority','task-due','task-status','task-category','task-desc',
-        'res-title','res-url','res-category','res-desc'
-      ];
-
-      // Restore drafts
+      const fields = ['mtg-date','mtg-attendees','mtg-topic','mtg-notes','mtg-actions','task-title','task-assignee','task-priority','task-due','task-status','task-category','task-desc','res-title','res-url','res-category','res-desc'];
       const drafts = JSON.parse(localStorage.getItem(draftKey) || '{}');
-      fields.forEach(id => {
-        const el = document.getElementById(id);
-        if (el && drafts[id]) el.value = drafts[id];
-      });
-
-      // Save drafts on input
-      fields.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-          el.addEventListener('input', () => {
-            const d = JSON.parse(localStorage.getItem(draftKey) || '{}');
-            d[id] = el.value;
-            localStorage.setItem(draftKey, JSON.stringify(d));
-          });
-          el.addEventListener('change', () => {
-            const d = JSON.parse(localStorage.getItem(draftKey) || '{}');
-            d[id] = el.value;
-            localStorage.setItem(draftKey, JSON.stringify(d));
-          });
-        }
-      });
+      fields.forEach(id => { const el = document.getElementById(id); if (el && drafts[id]) el.value = drafts[id]; });
+      fields.forEach(id => { const el = document.getElementById(id); if (el) { const handler = () => { const d = JSON.parse(localStorage.getItem(draftKey) || '{}'); d[id] = el.value; localStorage.setItem(draftKey, JSON.stringify(d)); }; el.addEventListener('input', handler); el.addEventListener('change', handler); } });
     }
 
     // ===================== MILESTONE TIMELINE =====================
@@ -996,105 +707,41 @@
       { label: 'BP Decision', date: '2026-04-30', icon: '📋' },
       { label: 'First Product Launched', date: '2026-09-15', icon: '🚀' },
     ];
-
     function renderTimeline() {
       const container = document.getElementById('milestone-timeline');
-      const now = new Date();
-      now.setHours(0,0,0,0);
-
+      const now = new Date(); now.setHours(0,0,0,0);
+      document.getElementById('today-label').textContent = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
       const lastDate = new Date(milestones[milestones.length - 1].date + 'T00:00:00');
-      const totalDays = Math.max(1, Math.ceil((lastDate - now) / (1000 * 60 * 60 * 24)));
-
-      // Build segment data
+      const totalDays = Math.max(1, Math.ceil((lastDate - now) / 86400000));
       const segments = milestones.map((m, i) => {
         const target = new Date(m.date + 'T00:00:00');
         const prevDate = i === 0 ? now : new Date(milestones[i-1].date + 'T00:00:00');
-        const segDays = Math.max(1, Math.ceil((target - prevDate) / (1000 * 60 * 60 * 24)));
-        const daysLeft = Math.ceil((target - now) / (1000 * 60 * 60 * 24));
+        const segDays = Math.max(1, Math.ceil((target - prevDate) / 86400000));
+        const daysLeft = Math.ceil((target - now) / 86400000);
         const isPast = daysLeft <= 0;
-        const elapsed = now - prevDate;
-        const segTotal = target - prevDate;
-        const progress = isPast ? 100 : Math.max(0, Math.min(100, (elapsed / segTotal) * 100));
+        const progress = isPast ? 100 : Math.max(0, Math.min(100, ((now - prevDate) / (target - prevDate)) * 100));
         const widthPct = (segDays / totalDays) * 100;
-        return { ...m, daysLeft, isPast, progress, widthPct, target };
+        return { ...m, daysLeft, isPast, progress, widthPct };
       });
-
-      function getColors(daysLeft, isPast) {
-        if (isPast) return { bar: '#22c55e', glow: 'rgba(34,197,94,0.3)', dot: '#22c55e', text: 'text-green-400', bg: 'rgba(34,197,94,0.12)', ring: 'ring-green-400/50' };
-        if (daysLeft <= 30) return { bar: '#f59e0b', glow: 'rgba(245,158,11,0.3)', dot: '#f59e0b', text: 'text-amber-400', bg: 'rgba(245,158,11,0.12)', ring: 'ring-amber-400/50' };
-        if (daysLeft <= 90) return { bar: '#3b82f6', glow: 'rgba(59,130,246,0.25)', dot: '#3b82f6', text: 'text-blue-400', bg: 'rgba(59,130,246,0.10)', ring: 'ring-blue-400/40' };
-        return { bar: '#6A7684', glow: 'rgba(106,118,132,0.15)', dot: '#6A7684', text: 'text-ppg-gray', bg: 'rgba(106,118,132,0.10)', ring: 'ring-ppg-gray/30' };
+      function gc(d, p) {
+        if (p) return { bar: '#22c55e', glow: 'rgba(34,197,94,0.25)', text: 'text-emerald-400' };
+        if (d <= 30) return { bar: '#fbbf24', glow: 'rgba(251,191,36,0.25)', text: 'text-amber-400' };
+        if (d <= 90) return { bar: '#a78bfa', glow: 'rgba(167,139,250,0.2)', text: 'text-accent' };
+        return { bar: '#6b6966', glow: 'rgba(107,105,102,0.15)', text: 'text-txt-3' };
       }
-
-      container.innerHTML = `
-        <div class="relative pt-2 pb-1">
-          <!-- Bar row -->
-          <div class="flex items-center">
-            <!-- Today dot -->
-            <div class="relative shrink-0 z-20 mr-[-6px]">
-              <div class="w-3 h-3 rounded-full bg-ppg-cream ring-4 ring-ppg-cream/15"></div>
-            </div>
-            ${segments.map((s, i) => {
-              const c = getColors(s.daysLeft, s.isPast);
-              return `
-              <!-- Segment ${i} -->
-              <div class="relative" style="flex: ${s.widthPct} 0 0; min-width: 60px;">
-                <div class="flex items-center">
-                  <!-- Track -->
-                  <div class="flex-1 h-2.5 rounded-full overflow-hidden mx-1" style="background: rgba(255,255,255,0.06);">
-                    <div class="h-full rounded-full" style="width: ${s.progress}%; background: linear-gradient(90deg, ${c.bar}, ${c.bar}dd); box-shadow: 0 0 12px ${c.glow};"></div>
-                  </div>
-                  <!-- Milestone node -->
-                  <div class="shrink-0 z-20 w-5 h-5 rounded-full flex items-center justify-center ring-3 ${c.ring}" style="background: ${s.isPast ? c.dot : 'rgba(255,255,255,0.08)'};">
-                    ${s.isPast ? '<svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>' : ''}
-                  </div>
-                </div>
-              </div>`;
-            }).join('')}
-          </div>
-
-          <!-- Labels row -->
-          <div class="flex items-start mt-4">
-            <!-- Today label -->
-            <div class="shrink-0 w-[12px]">
-            </div>
-            ${segments.map((s, i) => {
-              const c = getColors(s.daysLeft, s.isPast);
-              return `
-              <div class="text-right pr-2" style="flex: ${s.widthPct} 0 0; min-width: 60px;">
-                <div class="glass-light rounded-xl p-3 inline-block text-right" style="background: ${c.bg};">
-                  <div class="flex items-center justify-end gap-1.5 mb-1">
-                    <span class="text-lg">${s.icon}</span>
-                    <span class="text-sm font-bold text-ppg-cream">${esc(s.label)}</span>
-                  </div>
-                  <p class="text-xs ${c.text}" style="opacity:0.8;">${s.date}</p>
-                  <div class="mt-2 text-base font-extrabold ${c.text}">
-                    ${s.isPast ? '✓ Done' : s.daysLeft + 'd'}
-                  </div>
-                  ${!s.isPast ? `<p class="text-xs text-ppg-gray mt-0.5">${s.daysLeft === 1 ? 'tomorrow' : 'to go'}</p>` : ''}
-                </div>
-              </div>`;
-            }).join('')}
-          </div>
-
-          <!-- Today tag -->
-          <div class="flex items-center gap-1.5 mt-4">
-            <div class="w-1.5 h-1.5 rounded-full bg-ppg-cream"></div>
-            <span class="text-xs text-ppg-gray font-medium">Today &middot; ${now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</span>
-          </div>
-        </div>
-      `;
+      container.innerHTML = `<div class="flex items-center gap-0">
+        <div class="shrink-0 w-2 h-2 rounded-full bg-txt-1 ring-4 ring-white/5 z-10"></div>
+        ${segments.map(s => { const c = gc(s.daysLeft, s.isPast); return `
+        <div style="flex:${s.widthPct} 0 0;min-width:80px" class="relative">
+          <div class="flex items-center"><div class="flex-1 h-1.5 rounded-full mx-2 overflow-hidden" style="background:rgba(255,255,255,0.06)"><div class="h-full rounded-full" style="width:${s.progress}%;background:${c.bar};box-shadow:0 0 10px ${c.glow}"></div></div><div class="shrink-0 z-10 w-3 h-3 rounded-full" style="background:${s.isPast ? c.bar : 'rgba(255,255,255,0.1)'};box-shadow:0 0 0 3px ${c.glow}"></div></div>
+          <div class="text-right mt-2.5 pr-0.5"><span class="text-sm font-semibold text-txt-1">${s.icon} ${esc(s.label)}</span><div class="flex items-center justify-end gap-2 mt-0.5"><span class="text-xs ${c.text}">${s.date}</span><span class="text-xs font-bold ${c.text}">${s.isPast ? '✓' : s.daysLeft + 'd'}</span></div></div>
+        </div>`; }).join('')}
+      </div>`;
     }
 
     // ===================== INIT =====================
     document.getElementById('mtg-date').value = new Date().toISOString().split('T')[0];
-    renderTimeline();
-    renderMeetings();
-    renderTasks();
-    renderResources();
-    renderResourceFilters();
-    updateDashboard();
-    setupAutosaveDrafts();
+    renderTimeline(); renderMeetings(); renderTasks(); renderResources(); renderResourceFilters(); updateDashboard(); setupAutosaveDrafts();
   </script>
 </body>
 </html>
