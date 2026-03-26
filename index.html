@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PPG Prime Performance Group — Progress Tracker</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -440,16 +442,85 @@
   </footer>
 
   <script>
-    // ===================== DATA STORE =====================
-    const STORE_KEYS = { meetings: 'ppg_meetings', tasks: 'ppg_tasks', resources: 'ppg_resources' };
-    function load(key) { try { return JSON.parse(localStorage.getItem(key)) || []; } catch { return []; } }
-    function save(key, data) { localStorage.setItem(key, JSON.stringify(data)); flashSave(); }
+    // ===================== FIREBASE INIT =====================
+    firebase.initializeApp({
+      apiKey: "AIzaSyCVzAaOZu7IZsnf9gR9gQTkSb27wyuT0BA",
+      authDomain: "ppg-market-survey.firebaseapp.com",
+      projectId: "ppg-market-survey",
+      storageBucket: "ppg-market-survey.firebasestorage.app",
+      messagingSenderId: "680434883025",
+      appId: "1:680434883025:web:097b9cf92e2d02167c28f0",
+      measurementId: "G-KVCZLKLJ6F"
+    });
+    const db = firebase.firestore();
 
-    let meetings = load(STORE_KEYS.meetings);
-    let tasks = load(STORE_KEYS.tasks);
-    let resources = load(STORE_KEYS.resources);
+    // ===================== DATA STORE (FIRESTORE) =====================
+    const COLLECTIONS = { meetings: 'meetings', tasks: 'tasks', resources: 'resources' };
+
+    let meetings = [];
+    let tasks = [];
+    let resources = [];
     let currentFilter = 'all';
     let currentResFilter = 'all';
+
+    // Save a single document to Firestore
+    async function saveDoc(collection, doc) {
+      try {
+        await db.collection(collection).doc(String(doc.id)).set(doc);
+        flashSave();
+      } catch (e) { console.error('Firestore save error:', e); }
+    }
+
+    // Delete a single document from Firestore
+    async function deleteDoc(collection, id) {
+      try {
+        await db.collection(collection).doc(String(id)).delete();
+        flashSave();
+      } catch (e) { console.error('Firestore delete error:', e); }
+    }
+
+    // Save entire collection (used for bulk edits)
+    async function saveAll(collection, data) {
+      // Write each doc - Firestore will merge
+      const batch = db.batch();
+      data.forEach(doc => {
+        batch.set(db.collection(collection).doc(String(doc.id)), doc);
+      });
+      try { await batch.commit(); flashSave(); } catch (e) { console.error('Firestore batch error:', e); }
+    }
+
+    // Migrate localStorage data to Firestore (one-time)
+    async function migrateLocalStorage() {
+      const keys = { ppg_meetings: 'meetings', ppg_tasks: 'tasks', ppg_resources: 'resources' };
+      for (const [lsKey, collection] of Object.entries(keys)) {
+        try {
+          const data = JSON.parse(localStorage.getItem(lsKey) || '[]');
+          if (data.length > 0) {
+            const batch = db.batch();
+            data.forEach(doc => batch.set(db.collection(collection).doc(String(doc.id)), doc));
+            await batch.commit();
+            localStorage.removeItem(lsKey);
+            console.log(`Migrated ${data.length} ${collection} to Firestore`);
+          }
+        } catch (e) { console.error(`Migration error for ${collection}:`, e); }
+      }
+    }
+
+    // Set up real-time listeners
+    function setupRealtimeListeners() {
+      db.collection(COLLECTIONS.meetings).orderBy('createdAt', 'desc').onSnapshot(snap => {
+        meetings = snap.docs.map(d => d.data());
+        renderMeetings(); updateDashboard();
+      });
+      db.collection(COLLECTIONS.tasks).orderBy('createdAt', 'desc').onSnapshot(snap => {
+        tasks = snap.docs.map(d => d.data());
+        renderTasks(); updateDashboard();
+      });
+      db.collection(COLLECTIONS.resources).orderBy('createdAt', 'desc').onSnapshot(snap => {
+        resources = snap.docs.map(d => d.data());
+        renderResources(); renderResourceFilters();
+      });
+    }
 
     // ===================== AUTOSAVE INDICATOR =====================
     function flashSave() {
@@ -475,11 +546,11 @@
       const notes = document.getElementById('mtg-notes').value.trim();
       const actions = document.getElementById('mtg-actions').value.trim();
       if (!topic && !notes) return alert('Please add a topic or notes.');
-      meetings.unshift({ id: Date.now(), date: date || new Date().toISOString().split('T')[0], attendees, topic, notes, actions, createdAt: new Date().toISOString() });
-      save(STORE_KEYS.meetings, meetings);
-      clearMeetingForm(); renderMeetings(); updateDashboard();
+      const meeting = { id: Date.now(), date: date || new Date().toISOString().split('T')[0], attendees, topic, notes, actions, createdAt: new Date().toISOString() };
+      saveDoc(COLLECTIONS.meetings, meeting);
+      clearMeetingForm();
     }
-    function deleteMeeting(id) { meetings = meetings.filter(m => m.id !== id); save(STORE_KEYS.meetings, meetings); renderMeetings(); updateDashboard(); }
+    function deleteMeeting(id) { deleteDoc(COLLECTIONS.meetings, id); }
     function clearMeetingForm() {
       const fields = ['mtg-date','mtg-attendees','mtg-topic','mtg-notes','mtg-actions'];
       fields.forEach(id => { const el = document.getElementById(id); if (el) { el.value = ''; el.dispatchEvent(new Event('input')); } });
@@ -495,7 +566,7 @@
       m.topic = document.getElementById('edit-mtg-topic-' + id).value.trim();
       m.notes = document.getElementById('edit-mtg-notes-' + id).value.trim();
       m.actions = document.getElementById('edit-mtg-actions-' + id).value.trim();
-      save(STORE_KEYS.meetings, meetings); editingMeetingId = null; renderMeetings(); updateDashboard();
+      saveDoc(COLLECTIONS.meetings, m); editingMeetingId = null;
     }
     function cancelMeetingEdit() { editingMeetingId = null; renderMeetings(); }
 
@@ -530,12 +601,12 @@
     function addTask() {
       const title = document.getElementById('task-title').value.trim();
       if (!title) return alert('Please enter a task title.');
-      tasks.unshift({ id: Date.now(), title, assignee: document.getElementById('task-assignee').value, priority: document.getElementById('task-priority').value, due: document.getElementById('task-due').value, status: document.getElementById('task-status').value, category: document.getElementById('task-category').value.trim(), description: document.getElementById('task-desc').value.trim(), createdAt: new Date().toISOString() });
-      save(STORE_KEYS.tasks, tasks); clearTaskForm(); renderTasks(); updateDashboard();
+      const task = { id: Date.now(), title, assignee: document.getElementById('task-assignee').value, priority: document.getElementById('task-priority').value, due: document.getElementById('task-due').value, status: document.getElementById('task-status').value, category: document.getElementById('task-category').value.trim(), description: document.getElementById('task-desc').value.trim(), createdAt: new Date().toISOString() };
+      saveDoc(COLLECTIONS.tasks, task); clearTaskForm();
     }
-    function toggleTask(id) { const t = tasks.find(t => t.id === id); if (t) { t.status = t.status === 'done' ? 'todo' : 'done'; save(STORE_KEYS.tasks, tasks); renderTasks(); updateDashboard(); } }
-    function updateTaskStatus(id, status) { const t = tasks.find(t => t.id === id); if (t) { t.status = status; save(STORE_KEYS.tasks, tasks); renderTasks(); updateDashboard(); } }
-    function deleteTask(id) { tasks = tasks.filter(t => t.id !== id); save(STORE_KEYS.tasks, tasks); renderTasks(); updateDashboard(); }
+    function toggleTask(id) { const t = tasks.find(t => t.id === id); if (t) { t.status = t.status === 'done' ? 'todo' : 'done'; saveDoc(COLLECTIONS.tasks, t); } }
+    function updateTaskStatus(id, status) { const t = tasks.find(t => t.id === id); if (t) { t.status = status; saveDoc(COLLECTIONS.tasks, t); } }
+    function deleteTask(id) { deleteDoc(COLLECTIONS.tasks, id); }
     let editingTaskId = null;
     function editTask(id) { editingTaskId = id; renderTasks(); }
     function saveTaskEdit(id) {
@@ -548,7 +619,7 @@
       t.category = document.getElementById('edit-task-category-' + id).value.trim();
       t.description = document.getElementById('edit-task-desc-' + id).value.trim();
       t.results = document.getElementById('edit-task-results-' + id).value.trim();
-      save(STORE_KEYS.tasks, tasks); editingTaskId = null; renderTasks(); updateDashboard();
+      saveDoc(COLLECTIONS.tasks, t); editingTaskId = null;
     }
     function cancelTaskEdit() { editingTaskId = null; renderTasks(); }
     function clearTaskForm() {
@@ -641,10 +712,10 @@
       const title = document.getElementById('res-title').value.trim();
       const url = document.getElementById('res-url').value.trim();
       if (!title && !url) return alert('Please add a title or URL.');
-      resources.unshift({ id: Date.now(), title, url, category: document.getElementById('res-category').value, description: document.getElementById('res-desc').value.trim(), createdAt: new Date().toISOString() });
-      save(STORE_KEYS.resources, resources); clearResourceForm(); renderResources(); renderResourceFilters();
+      const resource = { id: Date.now(), title, url, category: document.getElementById('res-category').value, description: document.getElementById('res-desc').value.trim(), createdAt: new Date().toISOString() };
+      saveDoc(COLLECTIONS.resources, resource); clearResourceForm();
     }
-    function deleteResource(id) { resources = resources.filter(r => r.id !== id); save(STORE_KEYS.resources, resources); renderResources(); renderResourceFilters(); }
+    function deleteResource(id) { deleteDoc(COLLECTIONS.resources, id); }
     function clearResourceForm() {
       ['res-title','res-url','res-desc','res-category'].forEach(id => { const el = document.getElementById(id); if (el) { el.value = ''; el.dispatchEvent(new Event('input')); } });
       document.getElementById('res-category').value = 'Data'; clearDrafts(['res-title','res-url','res-desc','res-category']);
@@ -663,7 +734,7 @@
       r.url = document.getElementById('edit-res-url-' + id).value.trim();
       r.category = document.getElementById('edit-res-category-' + id).value;
       r.description = document.getElementById('edit-res-desc-' + id).value.trim();
-      save(STORE_KEYS.resources, resources); editingResourceId = null; renderResources(); renderResourceFilters();
+      saveDoc(COLLECTIONS.resources, r); editingResourceId = null;
     }
     function cancelResourceEdit() { editingResourceId = null; renderResources(); }
     const resCategoryOptions = ['Data','Documents','Tools','Research','Legal','Finance','Marketing','Other'];
@@ -877,7 +948,9 @@
 
     // ===================== INIT =====================
     document.getElementById('mtg-date').value = new Date().toISOString().split('T')[0];
-    renderTimeline(); renderMeetings(); renderTasks(); renderResources(); renderResourceFilters(); updateDashboard(); setupAutosaveDrafts();
+    renderTimeline(); setupAutosaveDrafts();
+    // Migrate any existing localStorage data to Firestore, then start real-time listeners
+    migrateLocalStorage().then(() => setupRealtimeListeners());
   </script>
 </body>
 </html>
